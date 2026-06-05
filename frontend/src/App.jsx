@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import CheckInDashboard from "./components/CheckInDashboard.jsx";
 import ClientForm from "./components/ClientForm.jsx";
 import FinancialDashboard from "./components/FinancialDashboard.jsx";
 import GymSetup from "./components/GymSetup.jsx";
@@ -149,6 +150,27 @@ const initialPlans = [
   },
 ];
 
+const initialAttendanceLogs = [
+  {
+    id: "att-001",
+    memberId: "mem-001",
+    fullName: "Laura Mendoza",
+    planName: "VIP",
+    accessGranted: true,
+    checkedAt: "2026-06-05T12:18:00Z",
+    reason: "Plan activo",
+  },
+  {
+    id: "att-002",
+    memberId: "mem-003",
+    fullName: "Andres Silva",
+    planName: "Mensual",
+    accessGranted: false,
+    checkedAt: "2026-06-05T12:02:00Z",
+    reason: "Plan vencido",
+  },
+];
+
 export default function App() {
   const [members, setMembers] = useState(dashboardSummary.members);
   const [selectedMemberId, setSelectedMemberId] = useState(dashboardSummary.members[0]?.memberId);
@@ -158,6 +180,7 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem("gym-theme") || "light");
   const [gymProfile, setGymProfile] = useState(initialGymProfile);
   const [plans, setPlans] = useState(initialPlans);
+  const [attendanceLogs, setAttendanceLogs] = useState(initialAttendanceLogs);
   const isDarkMode = theme === "dark";
 
   const selectedMember = useMemo(
@@ -253,6 +276,32 @@ export default function App() {
     );
   }
 
+  function handleCheckIn(memberId) {
+    const member = members.find((item) => item.memberId === memberId);
+
+    if (!member) {
+      return null;
+    }
+
+    const isBlocked = member.status === "Expired" || member.daysToExpire < 0;
+    const log = {
+      id: crypto.randomUUID(),
+      memberId: member.memberId,
+      fullName: member.fullName,
+      planName: member.planName,
+      accessGranted: !isBlocked,
+      checkedAt: new Date().toISOString(),
+      reason: isBlocked
+        ? "Plan vencido"
+        : member.status === "ExpiringSoon"
+          ? "Plan por vencer"
+          : "Plan activo",
+    };
+
+    setAttendanceLogs((current) => [log, ...current]);
+    return log;
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-6 text-gray-950 transition-colors dark:bg-gray-900 dark:text-gray-50 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -284,6 +333,7 @@ export default function App() {
           tabs={[
             { id: "finance", label: "Finanzas" },
             { id: "clients", label: "Clientes" },
+            { id: "checkin", label: "Check-in" },
             { id: "membership", label: "Mensualidad" },
             { id: "setup", label: "Gimnasio" },
           ]}
@@ -347,6 +397,20 @@ export default function App() {
 
             <MemberDetail member={selectedMember} onUpdateMembership={handleUpdateMembership} />
           </div>
+        ) : null}
+
+        {activeTab === "checkin" ? (
+          <CheckInDashboard
+            members={members}
+            attendanceLogs={attendanceLogs}
+            selectedMemberId={selectedMember?.memberId}
+            onSelectMember={(memberId) => setSelectedMemberId(memberId)}
+            onCheckIn={handleCheckIn}
+            onReviewMembership={(memberId) => {
+              setSelectedMemberId(memberId);
+              setActiveTab("membership");
+            }}
+          />
         ) : null}
 
         {activeTab === "setup" ? (

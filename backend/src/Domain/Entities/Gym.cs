@@ -15,4 +15,5 @@ public sealed class Gym
 
     public ICollection<Plan> Plans { get; set; } = new List<Plan>();
     public ICollection<Member> Members { get; set; } = new List<Member>();
+    public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 }

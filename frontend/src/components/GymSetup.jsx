@@ -20,8 +20,8 @@ const featureSuggestions = [
     description: "Enviar avisos antes del vencimiento por WhatsApp, correo o SMS.",
   },
   {
-    title: "Check-in de entrada",
-    description: "Registrar asistencias y bloquear accesos cuando el plan este vencido.",
+    title: "Control de acceso avanzado",
+    description: "Conectar torniquetes, QR o tarjetas al registro de entrada.",
   },
   {
     title: "Pagos y cartera",

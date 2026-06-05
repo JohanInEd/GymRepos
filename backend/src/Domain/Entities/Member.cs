@@ -19,4 +19,5 @@ public sealed class Member : ITenantScoped
     public Gym? Gym { get; set; }
     public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 }

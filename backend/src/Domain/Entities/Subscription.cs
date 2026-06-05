@@ -19,6 +19,7 @@ public sealed class Subscription : ITenantScoped
     public Member? Member { get; set; }
     public Plan? Plan { get; set; }
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 
     public bool IsCurrentlyActive(DateOnly today) =>
         Status == SubscriptionStatus.Active && StartDate <= today && EndDate >= today;

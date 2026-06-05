@@ -40,6 +40,7 @@ Main files:
 - `frontend/src/index.css`
 - `frontend/tailwind.config.js`
 - `frontend/src/components/ClientForm.jsx`
+- `frontend/src/components/CheckInDashboard.jsx`
 - `frontend/src/components/FinancialDashboard.jsx`
 - `frontend/src/components/GymSetup.jsx`
 - `frontend/src/components/MemberDetail.jsx`
@@ -54,7 +55,7 @@ Current UI features:
   - Uses Tailwind class-based dark mode (`darkMode: "class"`).
   - Stores the selected theme in `localStorage` under `gym-theme`.
   - Applies the `dark` class to `document.documentElement`.
-- Tabs: `Finanzas`, `Clientes`, `Mensualidad`, `Gimnasio`.
+- Tabs: `Finanzas`, `Clientes`, `Check-in`, `Mensualidad`, `Gimnasio`.
 - Client creation form with:
   - Nombre
   - Correo
@@ -85,6 +86,13 @@ Current UI features:
   - Description
 - Adding a plan with an existing name updates the previous plan instead of duplicating it.
 - Members table is clickable.
+- Check-in tab includes:
+  - Client search by name, email, phone, or plan.
+  - Selected client access validation.
+  - Entry registration for active and expiring memberships.
+  - Blocked access registration when the membership is expired.
+  - Daily counters for allowed entries, blocked attempts, and expiring plans.
+  - Recent check-in history with result and reason.
 - Membership table column has filter:
   - Todas
   - Activas
@@ -116,12 +124,14 @@ Backend is currently a code structure, not a fully runnable ASP.NET project yet.
 Main backend files:
 
 - `backend/src/API/Controllers/DashboardController.cs`
+- `backend/src/API/Controllers/CheckInController.cs`
 - `backend/src/API/Controllers/SubscriptionController.cs`
 - `backend/src/API/appsettings.json`
 - `backend/src/API/appsettings.Development.json`
 - `backend/src/API/Program.example.cs`
 - `backend/src/Application/Abstractions/ITenantProvider.cs`
 - `backend/src/Application/DTOs/Dashboard/*`
+- `backend/src/Application/DTOs/CheckIns/*`
 - `backend/src/Application/DTOs/Subscriptions/*`
 - `backend/src/Application/Payments/*`
 - `backend/src/Application/Services/IMembershipStatusService.cs`
@@ -141,6 +151,7 @@ Backend domain entities:
 - `Member`
 - `Subscription`
 - `Payment`
+- `Attendance`
 
 Multi-tenant structure:
 
@@ -148,6 +159,8 @@ Multi-tenant structure:
 - Tenant-scoped entities use `TenantId`.
 - `GymSaaSDbContext` includes global query filters using `ITenantProvider`.
 - `HeaderTenantProvider` reads tenant id from header `X-Tenant-Id`.
+- `Attendance` records allowed and blocked check-in attempts per tenant/member.
+- `CheckInController` exposes `POST /api/check-ins` and `GET /api/check-ins/recent`.
 
 SQL Server structure added:
 
@@ -176,6 +189,9 @@ Latest pushed commits:
 
 Most recent frontend changes:
 
+- Added `Check-in` tab for entrance validation and attendance logging.
+- Blocked access is recorded when a member plan is expired.
+- Check-in dashboard shows daily allowed entries, blocked attempts, expiring plans, and recent history.
 - Added `Gimnasio` tab for gym profile and admin user data.
 - Added plan registration and registered plans table.
 - Client creation form now uses registered plans as its plan options.

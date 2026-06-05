@@ -19,6 +19,7 @@ public sealed class GymSaaSDbContext : DbContext
     public DbSet<Member> Members => Set<Member>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Attendance> Attendances => Set<Attendance>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,6 +98,29 @@ public sealed class GymSaaSDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasOne(x => x.Subscription)
                 .WithMany(x => x.Payments)
+                .HasForeignKey(x => x.SubscriptionId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasQueryFilter(x => _tenantProvider == null || x.TenantId == _tenantProvider.CurrentTenantId);
+        });
+
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.ToTable("Attendances");
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.Reason).HasMaxLength(160).IsRequired();
+            entity.Property(x => x.RecordedByUserId).HasMaxLength(120);
+            entity.HasIndex(x => new { x.TenantId, x.CheckedInAt });
+            entity.HasIndex(x => new { x.TenantId, x.MemberId, x.CheckedInAt });
+            entity.HasOne(x => x.Gym)
+                .WithMany(x => x.Attendances)
+                .HasForeignKey(x => x.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(x => x.Member)
+                .WithMany(x => x.Attendances)
+                .HasForeignKey(x => x.MemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(x => x.Subscription)
+                .WithMany(x => x.Attendances)
                 .HasForeignKey(x => x.SubscriptionId)
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasQueryFilter(x => _tenantProvider == null || x.TenantId == _tenantProvider.CurrentTenantId);
