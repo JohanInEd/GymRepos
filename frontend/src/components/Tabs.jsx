@@ -1,7 +1,7 @@
 export default function Tabs({ tabs, activeTab, onChange }) {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-1 dark:border-gray-700 dark:bg-gray-800">
-      <div className="grid gap-1 sm:grid-cols-3">
+      <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(9rem, 1fr))" }}>
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 

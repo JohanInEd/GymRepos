@@ -41,6 +41,7 @@ Main files:
 - `frontend/tailwind.config.js`
 - `frontend/src/components/ClientForm.jsx`
 - `frontend/src/components/FinancialDashboard.jsx`
+- `frontend/src/components/GymSetup.jsx`
 - `frontend/src/components/MemberDetail.jsx`
 - `frontend/src/components/MembersTable.jsx`
 - `frontend/src/components/MembershipAlert.jsx`
@@ -53,7 +54,7 @@ Current UI features:
   - Uses Tailwind class-based dark mode (`darkMode: "class"`).
   - Stores the selected theme in `localStorage` under `gym-theme`.
   - Applies the `dark` class to `document.documentElement`.
-- Tabs: `Finanzas`, `Clientes`, `Mensualidad`.
+- Tabs: `Finanzas`, `Clientes`, `Mensualidad`, `Gimnasio`.
 - Client creation form with:
   - Nombre
   - Correo
@@ -65,6 +66,24 @@ Current UI features:
   - Pecho
   - Cintura
   - Cadera
+- Client creation plan options now come from the registered gym plans.
+- Gym setup tab includes:
+  - Gym name
+  - City
+  - Admin user name
+  - Admin email
+  - Admin phone
+  - Admin role
+  - Plan registration form
+  - Registered plans table
+  - Feature suggestions for future product work
+- Registered plans include:
+  - Plan name
+  - Price in COP
+  - Duration in days
+  - Included classes
+  - Description
+- Adding a plan with an existing name updates the previous plan instead of duplicating it.
 - Members table is clickable.
 - Membership table column has filter:
   - Todas
@@ -153,13 +172,19 @@ Latest pushed commits:
 
 - `bc260ce Initial gym SaaS dashboard`
 - `c231be9 Add dismissible membership alerts and SQL Server structure`
-- Latest commit: `Add dark and light theme toggle`
+- Latest commit: `Add gym setup tab and plan registration`
 
 Most recent frontend changes:
 
-- Editable membership calendar with month navigation.
-- Subscription length is shown with a colored day sequence.
-- Membership date edits update local React state and recalculate status.
+- Added `Gimnasio` tab for gym profile and admin user data.
+- Added plan registration and registered plans table.
+- Client creation form now uses registered plans as its plan options.
+- Tabs layout now adapts to more than three tabs.
+- Added suggested next features in the gym setup screen:
+  - Automatic renewal reminders.
+  - Check-in and access control.
+  - Payments and overdue balances.
+  - Client progress tracking.
 - Frontend validated with `npm run build`.
 - Updated `CONTEXT.md` with the current continuation notes.
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ClientForm from "./components/ClientForm.jsx";
 import FinancialDashboard from "./components/FinancialDashboard.jsx";
+import GymSetup from "./components/GymSetup.jsx";
 import MembershipAlert from "./components/MembershipAlert.jsx";
 import MemberDetail from "./components/MemberDetail.jsx";
 import MembersTable from "./components/MembersTable.jsx";
@@ -112,6 +113,42 @@ const dashboardSummary = {
   ],
 };
 
+const initialGymProfile = {
+  gymName: "Power House Gym",
+  city: "Bogota",
+  adminName: "Maria Rodriguez",
+  adminEmail: "admin@powerhousegym.com",
+  adminPhone: "+57 300 000 0000",
+  adminRole: "Propietario",
+};
+
+const initialPlans = [
+  {
+    id: "plan-001",
+    name: "Mensual",
+    price: 95000,
+    durationDays: 30,
+    maxClasses: null,
+    description: "Acceso completo por 30 dias.",
+  },
+  {
+    id: "plan-002",
+    name: "VIP",
+    price: 180000,
+    durationDays: 30,
+    maxClasses: null,
+    description: "Acceso completo, clases grupales y seguimiento.",
+  },
+  {
+    id: "plan-003",
+    name: "Anual",
+    price: 890000,
+    durationDays: 365,
+    maxClasses: null,
+    description: "Pago anual con tarifa preferencial.",
+  },
+];
+
 export default function App() {
   const [members, setMembers] = useState(dashboardSummary.members);
   const [selectedMemberId, setSelectedMemberId] = useState(dashboardSummary.members[0]?.memberId);
@@ -119,6 +156,8 @@ export default function App() {
   const [membershipFilter, setMembershipFilter] = useState("all");
   const [isMembershipAlertDismissed, setIsMembershipAlertDismissed] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem("gym-theme") || "light");
+  const [gymProfile, setGymProfile] = useState(initialGymProfile);
+  const [plans, setPlans] = useState(initialPlans);
   const isDarkMode = theme === "dark";
 
   const selectedMember = useMemo(
@@ -139,6 +178,8 @@ export default function App() {
     [members],
   );
 
+  const planOptions = useMemo(() => plans.map((plan) => plan.name), [plans]);
+
   useEffect(() => {
     setIsMembershipAlertDismissed(false);
   }, [expiringMembersCount]);
@@ -152,6 +193,18 @@ export default function App() {
     setMembers((current) => [member, ...current]);
     setSelectedMemberId(member.memberId);
     setActiveTab("membership");
+  }
+
+  function handleCreatePlan(plan) {
+    setPlans((current) => {
+      const existingPlan = current.find((item) => item.name.toLowerCase() === plan.name.toLowerCase());
+
+      if (!existingPlan) {
+        return [plan, ...current];
+      }
+
+      return current.map((item) => (item.id === existingPlan.id ? { ...plan, id: existingPlan.id } : item));
+    });
   }
 
   function calculateMembershipState(endDate) {
@@ -207,7 +260,7 @@ export default function App() {
           <div>
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Gym SaaS</p>
             <h1 className="text-2xl font-semibold tracking-normal text-gray-950 dark:text-white">
-              Dashboard administrativo
+              {gymProfile.gymName}
             </h1>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -232,6 +285,7 @@ export default function App() {
             { id: "finance", label: "Finanzas" },
             { id: "clients", label: "Clientes" },
             { id: "membership", label: "Mensualidad" },
+            { id: "setup", label: "Gimnasio" },
           ]}
         />
 
@@ -252,7 +306,7 @@ export default function App() {
 
         {activeTab === "clients" ? (
           <section className="space-y-6">
-            <ClientForm onCreate={handleCreateMember} />
+            <ClientForm onCreate={handleCreateMember} planOptions={planOptions} />
 
             <div className="space-y-3">
               <div>
@@ -293,6 +347,15 @@ export default function App() {
 
             <MemberDetail member={selectedMember} onUpdateMembership={handleUpdateMembership} />
           </div>
+        ) : null}
+
+        {activeTab === "setup" ? (
+          <GymSetup
+            gymProfile={gymProfile}
+            plans={plans}
+            onSaveGymProfile={setGymProfile}
+            onCreatePlan={handleCreatePlan}
+          />
         ) : null}
       </div>
     </main>

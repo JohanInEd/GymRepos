@@ -25,7 +25,7 @@ function Field({ label, children }) {
 const inputClass =
   "h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-950 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-50 dark:focus:border-gray-200 dark:focus:ring-gray-700";
 
-export default function ClientForm({ onCreate }) {
+export default function ClientForm({ onCreate, planOptions = ["Mensual", "VIP", "Anual"] }) {
   const [form, setForm] = useState(initialForm);
 
   function updateField(field, value) {
@@ -131,9 +131,9 @@ export default function ClientForm({ onCreate }) {
             value={form.planName}
             onChange={(event) => updateField("planName", event.target.value)}
           >
-            <option>Mensual</option>
-            <option>VIP</option>
-            <option>Anual</option>
+            {planOptions.map((planName) => (
+              <option key={planName}>{planName}</option>
+            ))}
           </select>
         </Field>
 
