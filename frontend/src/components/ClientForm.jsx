@@ -16,14 +16,14 @@ const initialForm = {
 function Field({ label, children }) {
   return (
     <label className="space-y-1 text-sm">
-      <span className="font-medium text-gray-700">{label}</span>
+      <span className="font-medium text-gray-700 dark:text-gray-300">{label}</span>
       {children}
     </label>
   );
 }
 
 const inputClass =
-  "h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-950 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-200";
+  "h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-950 outline-none transition focus:border-gray-900 focus:ring-2 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-50 dark:focus:border-gray-200 dark:focus:ring-gray-700";
 
 export default function ClientForm({ onCreate }) {
   const [form, setForm] = useState(initialForm);
@@ -69,15 +69,15 @@ export default function ClientForm({ onCreate }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-gray-200 bg-white p-4">
-      <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3">
+    <form onSubmit={handleSubmit} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3 dark:border-gray-700">
         <div>
-          <h2 className="text-base font-semibold text-gray-950">Crear cliente</h2>
-          <p className="text-sm text-gray-500">Datos basicos y medidas corporales.</p>
+          <h2 className="text-base font-semibold text-gray-950 dark:text-white">Crear cliente</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Datos basicos y medidas corporales.</p>
         </div>
         <button
           type="submit"
-          className="h-10 rounded-md bg-gray-950 px-4 text-sm font-semibold text-white transition hover:bg-gray-800"
+          className="h-10 rounded-md bg-gray-950 px-4 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
         >
           Guardar
         </button>

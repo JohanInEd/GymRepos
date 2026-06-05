@@ -38,6 +38,7 @@ Main files:
 - `frontend/src/App.jsx`
 - `frontend/src/main.jsx`
 - `frontend/src/index.css`
+- `frontend/tailwind.config.js`
 - `frontend/src/components/ClientForm.jsx`
 - `frontend/src/components/FinancialDashboard.jsx`
 - `frontend/src/components/MemberDetail.jsx`
@@ -48,6 +49,10 @@ Main files:
 
 Current UI features:
 
+- Dark mode / light mode toggle in the header.
+  - Uses Tailwind class-based dark mode (`darkMode: "class"`).
+  - Stores the selected theme in `localStorage` under `gym-theme`.
+  - Applies the `dark` class to `document.documentElement`.
 - Tabs: `Finanzas`, `Clientes`, `Mensualidad`.
 - Client creation form with:
   - Nombre
@@ -138,15 +143,16 @@ Important backend note:
 
 ## Git Status Notes
 
-Previous pushed commit:
+Latest pushed commits:
 
 - `bc260ce Initial gym SaaS dashboard`
+- `c231be9 Add dismissible membership alerts and SQL Server structure`
+- Latest commit: `Add dark and light theme toggle`
 
-After that commit, local changes were added:
+Most recent frontend changes:
 
-- Alert dismiss button.
-- SQL Server backend configuration structure.
-- This `CONTEXT.md` file.
+- Dark mode / light mode support across the React/Tailwind frontend.
+- Updated `CONTEXT.md` with the current continuation notes.
 
 In the next chat, first run:
 
@@ -156,13 +162,7 @@ git status --short
 
 Then decide whether to commit and push these local changes.
 
-Suggested commit message:
-
-```bash
-git add .
-git commit -m "Add dismissible membership alerts and SQL Server structure"
-git push
-```
+If the working tree is clean, continue with the next requested feature.
 
 ## How To Continue In A New Chat
 

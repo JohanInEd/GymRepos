@@ -38,7 +38,7 @@ function PaymentStatusBadge({ status }) {
 export default function FinancialDashboard({ summary, currency = "USD", isLoading = false }) {
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500">
+      <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
         Cargando finanzas...
       </div>
     );
@@ -57,41 +57,41 @@ export default function FinancialDashboard({ summary, currency = "USD", isLoadin
   return (
     <section className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <article className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Mes actual</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-950">
+        <article className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mes actual</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
             {formatCurrency(data.currentMonthRevenue, currency)}
           </p>
         </article>
 
-        <article className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Mes anterior</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-950">
+        <article className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mes anterior</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
             {formatCurrency(data.previousMonthRevenue, currency)}
           </p>
         </article>
 
-        <article className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Variacion</p>
-          <p className={`mt-2 text-2xl font-semibold ${deltaIsPositive ? "text-green-700" : "text-red-700"}`}>
+        <article className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Variacion</p>
+          <p className={`mt-2 text-2xl font-semibold ${deltaIsPositive ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
             {formatCurrency(data.monthOverMonthDelta, currency)}
           </p>
         </article>
 
-        <article className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Pagos del mes</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-950">{data.currentMonthPaidPayments}</p>
+        <article className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Pagos del mes</p>
+          <p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">{data.currentMonthPaidPayments}</p>
         </article>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-4 py-3">
-          <h2 className="text-base font-semibold text-gray-950">Pagos recientes</h2>
+      <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <div className="border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+          <h2 className="text-base font-semibold text-gray-950 dark:text-white">Pagos recientes</h2>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
+            <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:bg-gray-900/70 dark:text-gray-300">
               <tr>
                 <th className="px-4 py-3">Miembro</th>
                 <th className="px-4 py-3">Plan</th>
@@ -100,25 +100,25 @@ export default function FinancialDashboard({ summary, currency = "USD", isLoadin
                 <th className="px-4 py-3">Fecha</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.recentPayments.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-4 py-6 text-center text-gray-500">
+                  <td colSpan="5" className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
                     No hay pagos recientes.
                   </td>
                 </tr>
               ) : (
                 data.recentPayments.map((payment) => (
                   <tr key={payment.paymentId}>
-                    <td className="px-4 py-3 font-medium text-gray-950">{payment.memberName}</td>
-                    <td className="px-4 py-3 text-gray-700">{payment.planName}</td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 font-medium text-gray-950 dark:text-white">{payment.memberName}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{payment.planName}</td>
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                       {formatCurrency(payment.amount, payment.currency || currency)}
                     </td>
                     <td className="px-4 py-3">
                       <PaymentStatusBadge status={payment.status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                       {formatDateTime(payment.paidAt || payment.createdAt)}
                     </td>
                   </tr>

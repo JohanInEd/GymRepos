@@ -118,6 +118,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("clients");
   const [membershipFilter, setMembershipFilter] = useState("all");
   const [isMembershipAlertDismissed, setIsMembershipAlertDismissed] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem("gym-theme") || "light");
+  const isDarkMode = theme === "dark";
 
   const selectedMember = useMemo(
     () => members.find((member) => member.memberId === selectedMemberId) || members[0],
@@ -141,6 +143,11 @@ export default function App() {
     setIsMembershipAlertDismissed(false);
   }, [expiringMembersCount]);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDarkMode);
+    localStorage.setItem("gym-theme", theme);
+  }, [isDarkMode, theme]);
+
   function handleCreateMember(member) {
     setMembers((current) => [member, ...current]);
     setSelectedMemberId(member.memberId);
@@ -148,17 +155,27 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-4 py-6 text-gray-950 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-gray-100 px-4 py-6 text-gray-950 transition-colors dark:bg-gray-900 dark:text-gray-50 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Gym SaaS</p>
-            <h1 className="text-2xl font-semibold tracking-normal text-gray-950">
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Gym SaaS</p>
+            <h1 className="text-2xl font-semibold tracking-normal text-gray-950 dark:text-white">
               Dashboard administrativo
             </h1>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-600">
-            Demo local con datos mock
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+              Demo local con datos mock
+            </div>
+            <button
+              type="button"
+              onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+              className="h-10 rounded-md border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+              aria-pressed={isDarkMode}
+            >
+              {isDarkMode ? "Modo claro" : "Modo oscuro"}
+            </button>
           </div>
         </header>
 
@@ -193,8 +210,8 @@ export default function App() {
 
             <div className="space-y-3">
               <div>
-                <h2 className="text-lg font-semibold text-gray-950">Clientes</h2>
-                <p className="text-sm text-gray-500">Haz click en un usuario para seleccionarlo.</p>
+                <h2 className="text-lg font-semibold text-gray-950 dark:text-white">Clientes</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Haz click en un usuario para seleccionarlo.</p>
               </div>
               <MembersTable
                 members={members}
@@ -214,8 +231,8 @@ export default function App() {
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
             <section className="space-y-3">
               <div>
-                <h2 className="text-lg font-semibold text-gray-950">Mensualidad</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-lg font-semibold text-gray-950 dark:text-white">Mensualidad</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Selecciona un cliente para revisar fechas, estado y dias restantes.
                 </p>
               </div>
