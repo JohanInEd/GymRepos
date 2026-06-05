@@ -11,7 +11,7 @@ function Metric({ label, value, suffix }) {
   );
 }
 
-export default function MemberDetail({ member }) {
+export default function MemberDetail({ member, onUpdateMembership }) {
   if (!member) {
     return (
       <aside className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
@@ -31,7 +31,7 @@ export default function MemberDetail({ member }) {
         <p className="text-sm text-gray-500 dark:text-gray-400">{member.phone || "Sin telefono"}</p>
       </div>
 
-      <MembershipCalendar member={member} />
+      <MembershipCalendar member={member} onUpdateMembership={onUpdateMembership} />
 
       <div className="grid grid-cols-2 gap-3">
         <Metric label="Estatura" value={metrics.heightCm} suffix=" cm" />

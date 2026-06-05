@@ -76,10 +76,16 @@ Current UI features:
   - `Revisar` button: opens `Mensualidad` tab and filters by `Por vencer`.
   - `Quitar` button: dismisses alert from the screen.
 - Membership detail includes a mini calendar:
+  - Editable start and end date inputs.
+  - Previous / next month controls.
+  - Full subscription range highlighted in sequence.
+  - Used subscription days marked teal.
+  - Pending subscription days marked sky blue.
   - Start date marked green.
   - End date marked red.
   - Today marked with dark ring.
-  - Shows remaining days and progress.
+  - Shows remaining days, total subscription length, and progress.
+  - Date edits recalculate days remaining, membership status, badge color, filters, and alerts.
 - Human silhouette component was removed.
 
 ## Backend
@@ -151,7 +157,10 @@ Latest pushed commits:
 
 Most recent frontend changes:
 
-- Dark mode / light mode support across the React/Tailwind frontend.
+- Editable membership calendar with month navigation.
+- Subscription length is shown with a colored day sequence.
+- Membership date edits update local React state and recalculate status.
+- Frontend validated with `npm run build`.
 - Updated `CONTEXT.md` with the current continuation notes.
 
 In the next chat, first run:

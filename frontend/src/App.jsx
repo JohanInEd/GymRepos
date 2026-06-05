@@ -154,6 +154,52 @@ export default function App() {
     setActiveTab("membership");
   }
 
+  function calculateMembershipState(endDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = new Date(`${endDate}T00:00:00`);
+    const daysToExpire = Math.ceil((end - today) / 86400000);
+
+    if (daysToExpire < 0) {
+      return {
+        daysToExpire,
+        status: "Expired",
+        visualColor: "Red",
+        tailwindClass: "bg-red-100 text-red-800",
+      };
+    }
+
+    if (daysToExpire <= 5) {
+      return {
+        daysToExpire,
+        status: "ExpiringSoon",
+        visualColor: "Yellow",
+        tailwindClass: "bg-yellow-100 text-yellow-800",
+      };
+    }
+
+    return {
+      daysToExpire,
+      status: "Active",
+      visualColor: "Green",
+      tailwindClass: "bg-green-100 text-green-800",
+    };
+  }
+
+  function handleUpdateMembership(memberId, dates) {
+    setMembers((current) =>
+      current.map((member) =>
+        member.memberId === memberId
+          ? {
+              ...member,
+              ...dates,
+              ...calculateMembershipState(dates.endDate),
+            }
+          : member,
+      ),
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-6 text-gray-950 transition-colors dark:bg-gray-900 dark:text-gray-50 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -245,7 +291,7 @@ export default function App() {
               />
             </section>
 
-            <MemberDetail member={selectedMember} />
+            <MemberDetail member={selectedMember} onUpdateMembership={handleUpdateMembership} />
           </div>
         ) : null}
       </div>
