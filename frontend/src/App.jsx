@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ClientForm from "./components/ClientForm.jsx";
 import FinancialDashboard from "./components/FinancialDashboard.jsx";
 import MembershipAlert from "./components/MembershipAlert.jsx";
@@ -117,6 +117,7 @@ export default function App() {
   const [selectedMemberId, setSelectedMemberId] = useState(dashboardSummary.members[0]?.memberId);
   const [activeTab, setActiveTab] = useState("clients");
   const [membershipFilter, setMembershipFilter] = useState("all");
+  const [isMembershipAlertDismissed, setIsMembershipAlertDismissed] = useState(false);
 
   const selectedMember = useMemo(
     () => members.find((member) => member.memberId === selectedMemberId) || members[0],
@@ -130,6 +131,15 @@ export default function App() {
 
     return members.filter((member) => member.status === membershipFilter);
   }, [members, membershipFilter]);
+
+  const expiringMembersCount = useMemo(
+    () => members.filter((member) => member.daysToExpire >= 0 && member.daysToExpire <= 5).length,
+    [members],
+  );
+
+  useEffect(() => {
+    setIsMembershipAlertDismissed(false);
+  }, [expiringMembersCount]);
 
   function handleCreateMember(member) {
     setMembers((current) => [member, ...current]);
@@ -162,13 +172,16 @@ export default function App() {
           ]}
         />
 
-        <MembershipAlert
-          members={members}
-          onReview={() => {
-            setMembershipFilter("ExpiringSoon");
-            setActiveTab("membership");
-          }}
-        />
+        {!isMembershipAlertDismissed ? (
+          <MembershipAlert
+            members={members}
+            onDismiss={() => setIsMembershipAlertDismissed(true)}
+            onReview={() => {
+              setMembershipFilter("ExpiringSoon");
+              setActiveTab("membership");
+            }}
+          />
+        ) : null}
 
         {activeTab === "finance" ? (
           <FinancialDashboard summary={dashboardSummary.financialSummary} currency="COP" />

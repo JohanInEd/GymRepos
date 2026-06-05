@@ -1,4 +1,4 @@
-export default function MembershipAlert({ members = [], onReview }) {
+export default function MembershipAlert({ members = [], onDismiss, onReview }) {
   const expiringMembers = members.filter(
     (member) => member.daysToExpire >= 0 && member.daysToExpire <= 5,
   );
@@ -20,13 +20,23 @@ export default function MembershipAlert({ members = [], onReview }) {
               .join(", ")}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onReview}
-          className="h-10 rounded-md bg-yellow-900 px-4 text-sm font-semibold text-white transition hover:bg-yellow-800"
-        >
-          Revisar
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onReview}
+            className="h-10 rounded-md bg-yellow-900 px-4 text-sm font-semibold text-white transition hover:bg-yellow-800"
+          >
+            Revisar
+          </button>
+          <button
+            type="button"
+            onClick={onDismiss}
+            className="h-10 rounded-md border border-yellow-300 bg-white px-4 text-sm font-semibold text-yellow-900 transition hover:bg-yellow-100"
+            aria-label="Quitar alerta de mensualidades por vencer"
+          >
+            Quitar
+          </button>
+        </div>
       </div>
     </div>
   );
