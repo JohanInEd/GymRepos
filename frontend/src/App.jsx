@@ -12,8 +12,69 @@ const dashboardSummary = {
   financialSummary: {
     currentMonthRevenue: 18450000,
     previousMonthRevenue: 15100000,
-    monthOverMonthDelta: 3350000,
+    currentMonthExpenses: 6350000,
     currentMonthPaidPayments: 128,
+    monthlyRevenue: [
+      { month: "Ene", revenue: 12600000 },
+      { month: "Feb", revenue: 13900000 },
+      { month: "Mar", revenue: 14250000 },
+      { month: "Abr", revenue: 15800000 },
+      { month: "May", revenue: 15100000 },
+      { month: "Jun", revenue: 18450000 },
+    ],
+    accountsReceivable: [
+      {
+        receivableId: "rec-001",
+        memberName: "Andres Silva",
+        planName: "Mensual",
+        amount: 95000,
+        dueDate: "2026-05-01",
+      },
+      {
+        receivableId: "rec-002",
+        memberName: "Valentina Gomez",
+        planName: "VIP",
+        amount: 180000,
+        dueDate: "2026-05-28",
+      },
+      {
+        receivableId: "rec-003",
+        memberName: "Miguel Torres",
+        planName: "Anual",
+        amount: 890000,
+        dueDate: "2026-05-30",
+      },
+      {
+        receivableId: "rec-004",
+        memberName: "Daniela Ruiz",
+        planName: "Mensual",
+        amount: 95000,
+        dueDate: "2026-06-02",
+      },
+    ],
+    recentExpenses: [
+      {
+        expenseId: "exp-001",
+        category: "Arriendo",
+        description: "Arriendo sede principal",
+        amount: 3000000,
+        createdAt: "2026-06-01T13:00:00Z",
+      },
+      {
+        expenseId: "exp-002",
+        category: "Servicios",
+        description: "Energia, agua e internet",
+        amount: 1250000,
+        createdAt: "2026-06-03T16:30:00Z",
+      },
+      {
+        expenseId: "exp-003",
+        category: "Nomina",
+        description: "Pago de entrenadores",
+        amount: 2100000,
+        createdAt: "2026-06-05T14:00:00Z",
+      },
+    ],
     recentPayments: [
       {
         paymentId: "pay-001",
@@ -173,6 +234,7 @@ const initialAttendanceLogs = [
 
 export default function App() {
   const [members, setMembers] = useState(dashboardSummary.members);
+  const [financialSummary, setFinancialSummary] = useState(dashboardSummary.financialSummary);
   const [selectedMemberId, setSelectedMemberId] = useState(dashboardSummary.members[0]?.memberId);
   const [activeTab, setActiveTab] = useState("clients");
   const [membershipFilter, setMembershipFilter] = useState("all");
@@ -302,6 +364,59 @@ export default function App() {
     return log;
   }
 
+  function handleRegisterPayment(payment) {
+    setFinancialSummary((current) => {
+      const updatedRevenue = current.currentMonthRevenue + payment.amount;
+      const updatedReceivables = current.accountsReceivable
+        .map((receivable) =>
+          receivable.receivableId === payment.receivableId
+            ? { ...receivable, amount: Math.max(0, receivable.amount - payment.amount) }
+            : receivable,
+        )
+        .filter((receivable) => receivable.amount > 0);
+      const updatedMonthlyRevenue = current.monthlyRevenue.map((item, index) =>
+        index === current.monthlyRevenue.length - 1 ? { ...item, revenue: updatedRevenue } : item,
+      );
+
+      return {
+        ...current,
+        currentMonthRevenue: updatedRevenue,
+        currentMonthPaidPayments: current.currentMonthPaidPayments + 1,
+        monthlyRevenue: updatedMonthlyRevenue,
+        accountsReceivable: updatedReceivables,
+        recentPayments: [
+          {
+            paymentId: crypto.randomUUID(),
+            memberName: payment.memberName,
+            planName: payment.planName,
+            amount: payment.amount,
+            currency: "COP",
+            method: payment.method,
+            status: "Paid",
+            createdAt: new Date().toISOString(),
+            paidAt: new Date().toISOString(),
+          },
+          ...current.recentPayments,
+        ],
+      };
+    });
+  }
+
+  function handleRegisterExpense(expense) {
+    setFinancialSummary((current) => ({
+      ...current,
+      currentMonthExpenses: current.currentMonthExpenses + expense.amount,
+      recentExpenses: [
+        {
+          expenseId: crypto.randomUUID(),
+          ...expense,
+          createdAt: new Date().toISOString(),
+        },
+        ...current.recentExpenses,
+      ],
+    }));
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 px-4 py-6 text-gray-950 transition-colors dark:bg-gray-900 dark:text-gray-50 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -351,7 +466,12 @@ export default function App() {
         ) : null}
 
         {activeTab === "finance" ? (
-          <FinancialDashboard summary={dashboardSummary.financialSummary} currency="COP" />
+          <FinancialDashboard
+            summary={financialSummary}
+            currency="COP"
+            onRegisterPayment={handleRegisterPayment}
+            onRegisterExpense={handleRegisterExpense}
+          />
         ) : null}
 
         {activeTab === "clients" ? (

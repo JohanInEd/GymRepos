@@ -56,6 +56,15 @@ Current UI features:
   - Stores the selected theme in `localStorage` under `gym-theme`.
   - Applies the `dark` class to `document.documentElement`.
 - Tabs: `Finanzas`, `Clientes`, `Check-in`, `Mensualidad`, `Gimnasio`.
+- Finance tab includes:
+  - Current-month income, expenses, net profit, and outstanding receivables.
+  - Six-month revenue bar chart with month-over-month comparison.
+  - Outstanding receivables list with due dates and overdue days.
+  - Quick action to register a payment.
+  - Quick action to register an expense.
+  - CSV finance report download.
+  - Registering a payment updates income, payment count, recent payments, the chart, and matching receivables.
+  - Registering an expense updates expenses, net profit, and recent expenses.
 - Client creation form with:
   - Nombre
   - Correo
@@ -189,6 +198,10 @@ Latest pushed commits:
 
 Most recent frontend changes:
 
+- Expanded the `Finanzas` tab with income, expense, net-profit, and receivables metrics.
+- Added a six-month revenue chart and overdue receivables panel.
+- Added working quick actions for payment registration, expense registration, and CSV report download.
+- Finance quick actions update the in-memory dashboard data immediately.
 - Added `Check-in` tab for entrance validation and attendance logging.
 - Blocked access is recorded when a member plan is expired.
 - Check-in dashboard shows daily allowed entries, blocked attempts, expiring plans, and recent history.
