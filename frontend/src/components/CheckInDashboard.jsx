@@ -75,6 +75,7 @@ export default function CheckInDashboard({
   selectedMemberId,
   onSelectMember,
   onCheckIn,
+  onCheckOut,
   onReviewMembership,
 }) {
   const [query, setQuery] = useState("");
@@ -114,6 +115,9 @@ export default function CheckInDashboard({
   }, [attendanceLogs]);
 
   const accessDecision = getAccessDecision(selectedMember);
+  const openAttendance = attendanceLogs.find(
+    (log) => log.memberId === selectedMember?.memberId && log.accessGranted && !log.checkedOutAt,
+  );
   const resultForSelected = lastResult?.memberId === selectedMember?.memberId ? lastResult : null;
   const selectedStatusStyle = getStatusStyle(selectedMember?.status);
 
@@ -134,9 +138,21 @@ export default function CheckInDashboard({
     }
   }
 
+  function handleCheckOut() {
+    if (!selectedMember || !openAttendance) {
+      return;
+    }
+
+    const log = onCheckOut?.(selectedMember.memberId);
+
+    if (log) {
+      setLastResult(log);
+    }
+  }
+
   return (
     <section className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Entradas hoy</p>
           <p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
@@ -153,6 +169,12 @@ export default function CheckInDashboard({
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Planes por vencer</p>
           <p className="mt-2 text-2xl font-semibold text-yellow-600 dark:text-yellow-300">
             {members.filter((member) => member.status === "ExpiringSoon").length}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Personas dentro</p>
+          <p className="mt-2 text-2xl font-semibold text-sky-600 dark:text-sky-300">
+            {attendanceLogs.filter((log) => log.accessGranted && !log.checkedOutAt).length}
           </p>
         </div>
       </div>
@@ -227,7 +249,8 @@ export default function CheckInDashboard({
               <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
                 <thead className="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-600 dark:bg-gray-900/70 dark:text-gray-300">
                   <tr>
-                    <th className="px-4 py-3">Hora</th>
+                    <th className="px-4 py-3">Entrada</th>
+                    <th className="px-4 py-3">Salida</th>
                     <th className="px-4 py-3">Cliente</th>
                     <th className="px-4 py-3">Plan</th>
                     <th className="px-4 py-3">Resultado</th>
@@ -238,6 +261,9 @@ export default function CheckInDashboard({
                   {attendanceLogs.slice(0, 8).map((log) => (
                     <tr key={log.id} className="bg-white dark:bg-gray-800">
                       <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{formatDateTime(log.checkedAt)}</td>
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                        {log.checkedOutAt ? formatDateTime(log.checkedOutAt) : log.accessGranted ? "Dentro" : "-"}
+                      </td>
                       <td className="px-4 py-3 font-medium text-gray-950 dark:text-white">{log.fullName}</td>
                       <td className="px-4 py-3 text-gray-700 dark:text-gray-300">{log.planName}</td>
                       <td className="px-4 py-3">
@@ -318,13 +344,23 @@ export default function CheckInDashboard({
                   }`}
                 >
                   {resultForSelected
-                    ? resultForSelected.accessGranted
-                      ? "Entrada registrada"
-                      : "Entrada bloqueada"
+                    ? resultForSelected.action === "check-out"
+                      ? "Salida registrada"
+                      : resultForSelected.action === "duplicate"
+                        ? "Entrada ya registrada"
+                        : resultForSelected.accessGranted
+                          ? "Entrada registrada"
+                          : "Entrada bloqueada"
+                    : openAttendance
+                      ? "Cliente dentro del gimnasio"
                     : accessDecision.title}
                 </p>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                  {resultForSelected ? resultForSelected.reason : accessDecision.description}
+                  {resultForSelected
+                    ? resultForSelected.reason
+                    : openAttendance
+                      ? `Entrada registrada ${formatDateTime(openAttendance.checkedAt)}. Valida la salida antes de registrar otro ingreso.`
+                      : accessDecision.description}
                 </p>
               </div>
 
@@ -332,13 +368,22 @@ export default function CheckInDashboard({
                 <button
                   type="button"
                   onClick={handleCheckIn}
-                  className={`h-10 rounded-md px-4 text-sm font-semibold text-white transition ${
-                    accessDecision.accessGranted
+                  disabled={Boolean(openAttendance)}
+                  className={`h-10 rounded-md px-4 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 ${
+                    accessDecision.accessGranted && !openAttendance
                       ? "bg-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
                       : "bg-red-600 hover:bg-red-700"
                   }`}
                 >
                   Validar entrada
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCheckOut}
+                  disabled={!openAttendance}
+                  className="h-10 rounded-md border border-sky-600 bg-sky-50 px-4 text-sm font-semibold text-sky-800 transition hover:bg-sky-100 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:border-sky-500 dark:bg-sky-950/40 dark:text-sky-200 dark:hover:bg-sky-950/70 dark:disabled:border-gray-600 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                >
+                  Validar salida
                 </button>
                 {!accessDecision.accessGranted ? (
                   <button

@@ -109,8 +109,12 @@ public sealed class GymSaaSDbContext : DbContext
             entity.HasKey(x => x.Id);
             entity.Property(x => x.Reason).HasMaxLength(160).IsRequired();
             entity.Property(x => x.RecordedByUserId).HasMaxLength(120);
+            entity.Property(x => x.CheckedOutByUserId).HasMaxLength(120);
             entity.HasIndex(x => new { x.TenantId, x.CheckedInAt });
             entity.HasIndex(x => new { x.TenantId, x.MemberId, x.CheckedInAt });
+            entity.HasIndex(x => new { x.TenantId, x.MemberId })
+                .HasFilter("[AccessGranted] = 1 AND [CheckedOutAt] IS NULL")
+                .IsUnique();
             entity.HasOne(x => x.Gym)
                 .WithMany(x => x.Attendances)
                 .HasForeignKey(x => x.TenantId)

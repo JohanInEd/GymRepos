@@ -7,4 +7,5 @@ public sealed record AttendanceLogDto(
     string? PlanName,
     bool AccessGranted,
     string Reason,
-    DateTimeOffset CheckedInAt);
+    DateTimeOffset CheckedInAt,
+    DateTimeOffset? CheckedOutAt);

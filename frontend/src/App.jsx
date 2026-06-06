@@ -219,6 +219,7 @@ const initialAttendanceLogs = [
     planName: "VIP",
     accessGranted: true,
     checkedAt: "2026-06-05T12:18:00Z",
+    checkedOutAt: "2026-06-05T13:26:00Z",
     reason: "Plan activo",
   },
   {
@@ -228,6 +229,7 @@ const initialAttendanceLogs = [
     planName: "Mensual",
     accessGranted: false,
     checkedAt: "2026-06-05T12:02:00Z",
+    checkedOutAt: null,
     reason: "Plan vencido",
   },
 ];
@@ -345,6 +347,18 @@ export default function App() {
       return null;
     }
 
+    const openAttendance = attendanceLogs.find(
+      (log) => log.memberId === memberId && log.accessGranted && !log.checkedOutAt,
+    );
+
+    if (openAttendance) {
+      return {
+        ...openAttendance,
+        action: "duplicate",
+        reason: "Este cliente ya tiene una entrada activa. Valida la salida antes de registrar otro ingreso.",
+      };
+    }
+
     const isBlocked = member.status === "Expired" || member.daysToExpire < 0;
     const log = {
       id: crypto.randomUUID(),
@@ -353,6 +367,8 @@ export default function App() {
       planName: member.planName,
       accessGranted: !isBlocked,
       checkedAt: new Date().toISOString(),
+      checkedOutAt: null,
+      action: "check-in",
       reason: isBlocked
         ? "Plan vencido"
         : member.status === "ExpiringSoon"
@@ -362,6 +378,28 @@ export default function App() {
 
     setAttendanceLogs((current) => [log, ...current]);
     return log;
+  }
+
+  function handleCheckOut(memberId) {
+    const checkedOutAt = new Date().toISOString();
+    const openAttendance = attendanceLogs.find(
+      (log) => log.memberId === memberId && log.accessGranted && !log.checkedOutAt,
+    );
+
+    if (!openAttendance) {
+      return null;
+    }
+
+    setAttendanceLogs((current) =>
+      current.map((log) => (log.id === openAttendance.id ? { ...log, checkedOutAt } : log)),
+    );
+
+    return {
+      ...openAttendance,
+      checkedOutAt,
+      action: "check-out",
+      reason: "Salida registrada correctamente.",
+    };
   }
 
   function handleRegisterPayment(payment) {
@@ -526,6 +564,7 @@ export default function App() {
             selectedMemberId={selectedMember?.memberId}
             onSelectMember={(memberId) => setSelectedMemberId(memberId)}
             onCheckIn={handleCheckIn}
+            onCheckOut={handleCheckOut}
             onReviewMembership={(memberId) => {
               setSelectedMemberId(memberId);
               setActiveTab("membership");

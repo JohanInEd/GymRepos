@@ -98,6 +98,9 @@ Current UI features:
 - Check-in tab includes:
   - Client search by name, email, phone, or plan.
   - Selected client access validation.
+  - Only one active entry is allowed per client.
+  - A new `Validar salida` action closes the active visit and enables a future entry.
+  - Current people inside the gym are counted on the dashboard.
   - Entry registration for active and expiring memberships.
   - Blocked access registration when the membership is expired.
   - Daily counters for allowed entries, blocked attempts, and expiring plans.
@@ -169,7 +172,9 @@ Multi-tenant structure:
 - `GymSaaSDbContext` includes global query filters using `ITenantProvider`.
 - `HeaderTenantProvider` reads tenant id from header `X-Tenant-Id`.
 - `Attendance` records allowed and blocked check-in attempts per tenant/member.
-- `CheckInController` exposes `POST /api/check-ins` and `GET /api/check-ins/recent`.
+- `Attendance` stores entry and optional exit timestamps for allowed visits.
+- `CheckInController` exposes `POST /api/check-ins`, `POST /api/check-ins/check-out`, and `GET /api/check-ins/recent`.
+- The backend rejects a second active entry and has a filtered unique index per tenant/member.
 
 SQL Server structure added:
 

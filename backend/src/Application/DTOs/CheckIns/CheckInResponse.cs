@@ -7,4 +7,5 @@ public sealed record CheckInResponse(
     bool AccessGranted,
     string Reason,
     DateTimeOffset CheckedInAt,
+    DateTimeOffset? CheckedOutAt,
     DateOnly? SubscriptionEndDate);

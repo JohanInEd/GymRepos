@@ -44,6 +44,20 @@ public sealed class CheckInController : ControllerBase
             return NotFound("The selected member does not exist or is inactive.");
         }
 
+        var hasOpenAttendance = await _dbContext.Attendances
+            .AsNoTracking()
+            .AnyAsync(
+                attendance =>
+                    attendance.MemberId == request.MemberId &&
+                    attendance.AccessGranted &&
+                    attendance.CheckedOutAt == null,
+                cancellationToken);
+
+        if (hasOpenAttendance)
+        {
+            return Conflict("The selected member already has an active check-in.");
+        }
+
         var latestSubscription = await _dbContext.Subscriptions
             .Include(subscription => subscription.Plan)
             .AsNoTracking()
@@ -79,7 +93,43 @@ public sealed class CheckInController : ControllerBase
             accessGranted,
             reason,
             checkedInAt,
+            null,
             latestSubscription?.EndDate));
+    }
+
+    [HttpPost("check-out")]
+    public async Task<ActionResult<CheckOutResponse>> CheckOut(
+        CheckOutRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.MemberId == Guid.Empty)
+        {
+            return BadRequest("Member id is required.");
+        }
+
+        var attendance = await _dbContext.Attendances
+            .Where(
+                attendance =>
+                    attendance.MemberId == request.MemberId &&
+                    attendance.AccessGranted &&
+                    attendance.CheckedOutAt == null)
+            .OrderByDescending(attendance => attendance.CheckedInAt)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (attendance is null)
+        {
+            return Conflict("The selected member does not have an active check-in.");
+        }
+
+        attendance.CheckedOutAt = DateTimeOffset.UtcNow;
+        attendance.CheckedOutByUserId = request.RecordedByUserId?.Trim();
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(new CheckOutResponse(
+            attendance.Id,
+            attendance.MemberId,
+            attendance.CheckedInAt,
+            attendance.CheckedOutAt.Value));
     }
 
     [HttpGet("recent")]
@@ -103,7 +153,8 @@ public sealed class CheckInController : ControllerBase
                     : attendance.Subscription.Plan.Name,
                 attendance.AccessGranted,
                 attendance.Reason,
-                attendance.CheckedInAt))
+                attendance.CheckedInAt,
+                attendance.CheckedOutAt))
             .ToListAsync(cancellationToken);
 
         return Ok(logs);
