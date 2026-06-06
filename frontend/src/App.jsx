@@ -15,12 +15,12 @@ const dashboardSummary = {
     currentMonthExpenses: 6350000,
     currentMonthPaidPayments: 128,
     monthlyRevenue: [
-      { month: "Ene", revenue: 12600000 },
-      { month: "Feb", revenue: 13900000 },
-      { month: "Mar", revenue: 14250000 },
-      { month: "Abr", revenue: 15800000 },
-      { month: "May", revenue: 15100000 },
-      { month: "Jun", revenue: 18450000 },
+      { month: "Ene", revenue: 12600000, expenses: 4100000, users: 1 },
+      { month: "Feb", revenue: 13900000, expenses: 4650000, users: 2 },
+      { month: "Mar", revenue: 14250000, expenses: 4900000, users: 2 },
+      { month: "Abr", revenue: 15800000, expenses: 5200000, users: 2 },
+      { month: "May", revenue: 15100000, expenses: 5850000, users: 3 },
+      { month: "Jun", revenue: 18450000, expenses: 6350000, users: 3 },
     ],
     accountsReceivable: [
       {
@@ -55,9 +55,12 @@ const dashboardSummary = {
     recentExpenses: [
       {
         expenseId: "exp-001",
-        category: "Arriendo",
+        category: "Infraestructura",
         description: "Arriendo sede principal",
         amount: 3000000,
+        expenseDate: "2026-06-01",
+        paymentMethod: "Transferencia",
+        provider: "Inmobiliaria Central",
         createdAt: "2026-06-01T13:00:00Z",
       },
       {
@@ -65,13 +68,19 @@ const dashboardSummary = {
         category: "Servicios",
         description: "Energia, agua e internet",
         amount: 1250000,
+        expenseDate: "2026-06-03",
+        paymentMethod: "Transferencia",
+        provider: "Servicios publicos",
         createdAt: "2026-06-03T16:30:00Z",
       },
       {
         expenseId: "exp-003",
-        category: "Nomina",
-        description: "Pago de entrenadores",
+        category: "Maquinaria",
+        description: "Mantenimiento de caminadoras",
         amount: 2100000,
+        expenseDate: "2026-06-05",
+        paymentMethod: "Tarjeta",
+        provider: "Tecnifitness",
         createdAt: "2026-06-05T14:00:00Z",
       },
     ],
@@ -441,18 +450,26 @@ export default function App() {
   }
 
   function handleRegisterExpense(expense) {
-    setFinancialSummary((current) => ({
-      ...current,
-      currentMonthExpenses: current.currentMonthExpenses + expense.amount,
-      recentExpenses: [
-        {
-          expenseId: crypto.randomUUID(),
-          ...expense,
-          createdAt: new Date().toISOString(),
-        },
-        ...current.recentExpenses,
-      ],
-    }));
+    setFinancialSummary((current) => {
+      const updatedExpenses = current.currentMonthExpenses + expense.amount;
+      const updatedMonthlyRevenue = current.monthlyRevenue.map((item, index) =>
+        index === current.monthlyRevenue.length - 1 ? { ...item, expenses: updatedExpenses } : item,
+      );
+
+      return {
+        ...current,
+        currentMonthExpenses: updatedExpenses,
+        monthlyRevenue: updatedMonthlyRevenue,
+        recentExpenses: [
+          {
+            expenseId: crypto.randomUUID(),
+            ...expense,
+            createdAt: new Date().toISOString(),
+          },
+          ...current.recentExpenses,
+        ],
+      };
+    });
   }
 
   return (
@@ -507,6 +524,7 @@ export default function App() {
           <FinancialDashboard
             summary={financialSummary}
             currency="COP"
+            memberCount={members.length}
             onRegisterPayment={handleRegisterPayment}
             onRegisterExpense={handleRegisterExpense}
           />

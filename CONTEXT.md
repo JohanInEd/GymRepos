@@ -11,7 +11,7 @@ Gym management SaaS with multi-tenant backend structure and a React/Tailwind adm
 - Backend: C# ASP.NET Core Web API, Entity Framework Core, SQL Server structure.
 - Frontend: React + Vite + Tailwind CSS.
 - GitHub repo: `https://github.com/JohanInEd/GymRepos.git`
-- Branch: `main`
+- Current development branch: `develop`
 
 ## Frontend
 
@@ -58,13 +58,19 @@ Current UI features:
 - Tabs: `Finanzas`, `Clientes`, `Check-in`, `Mensualidad`, `Gimnasio`.
 - Finance tab includes:
   - Current-month income, expenses, net profit, and outstanding receivables.
-  - Six-month revenue bar chart with month-over-month comparison.
+  - Six-month combined chart with income, expenses, and registered-user count.
+  - Grouped income/expense bars use a monetary scale.
+  - Registered users use a separate line scale.
   - Outstanding receivables list with due dates and overdue days.
   - Quick action to register a payment.
-  - Quick action to register an expense.
+  - Quick action to register a categorized expense.
+  - Expense categories: Infrastructure, Machinery, and Services.
+  - Expenses include description, amount, date, payment method, and optional provider.
+  - Category summary cards show the accumulated amount for each expense category.
   - CSV finance report download.
   - Registering a payment updates income, payment count, recent payments, the chart, and matching receivables.
-  - Registering an expense updates expenses, net profit, and recent expenses.
+  - Registering an expense updates expenses, net profit, category totals, recent expenses, and the chart.
+  - The current chart user count follows the live number of clients in the frontend state.
 - Client creation form with:
   - Nombre
   - Correo
@@ -201,8 +207,18 @@ Latest pushed commits:
 - `c231be9 Add dismissible membership alerts and SQL Server structure`
 - Latest commit: `Add gym setup tab and plan registration`
 
+Current branch for ongoing feature work:
+
+- `develop`
+
 Most recent frontend changes:
 
+- Expanded expense registration with Infrastructure, Machinery, and Services categories.
+- Added expense date, payment method, and optional provider fields.
+- Added expense totals grouped by category.
+- Replaced the revenue-only chart with a combined income, expenses, and users chart.
+- Registering an expense now updates the current month's expense bar immediately.
+- CSV finance exports now include the additional expense fields.
 - Expanded the `Finanzas` tab with income, expense, net-profit, and receivables metrics.
 - Added a six-month revenue chart and overdue receivables panel.
 - Added working quick actions for payment registration, expense registration, and CSV report download.

@@ -15,6 +15,9 @@ const initialExpenseForm = {
   category: "Servicios",
   description: "",
   amount: "",
+  expenseDate: new Date().toISOString().slice(0, 10),
+  paymentMethod: "Transferencia",
+  provider: "",
 };
 
 function formatCurrency(value, currency = "USD") {
@@ -246,7 +249,12 @@ function ExpenseForm({ onCancel, onSubmit }) {
       return;
     }
 
-    onSubmit({ ...form, amount, description: form.description.trim() });
+    onSubmit({
+      ...form,
+      amount,
+      description: form.description.trim(),
+      provider: form.provider.trim(),
+    });
   }
 
   return (
@@ -254,14 +262,16 @@ function ExpenseForm({ onCancel, onSubmit }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-sm font-semibold text-gray-950 dark:text-white">Registrar gasto</h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">El valor se descontara de la utilidad del mes.</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Clasifica el egreso para reflejarlo en el resumen y el grafico mensual.
+          </p>
         </div>
         <button type="button" onClick={onCancel} className="text-sm font-medium text-gray-500 hover:text-gray-950 dark:hover:text-white">
           Cerrar
         </button>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-[180px_minmax(0,1fr)_180px_auto]">
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <label className="space-y-1 text-sm">
           <span className="font-medium text-gray-700 dark:text-gray-300">Categoria</span>
           <select
@@ -269,16 +279,13 @@ function ExpenseForm({ onCancel, onSubmit }) {
             value={form.category}
             onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
           >
+            <option>Infraestructura</option>
+            <option>Maquinaria</option>
             <option>Servicios</option>
-            <option>Arriendo</option>
-            <option>Nomina</option>
-            <option>Mantenimiento</option>
-            <option>Equipamiento</option>
-            <option>Otro</option>
           </select>
         </label>
 
-        <label className="space-y-1 text-sm">
+        <label className="space-y-1 text-sm md:col-span-2 xl:col-span-1">
           <span className="font-medium text-gray-700 dark:text-gray-300">Descripcion</span>
           <input
             className={inputClass}
@@ -301,6 +308,40 @@ function ExpenseForm({ onCancel, onSubmit }) {
           />
         </label>
 
+        <label className="space-y-1 text-sm">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Fecha del gasto</span>
+          <input
+            className={inputClass}
+            type="date"
+            value={form.expenseDate}
+            onChange={(event) => setForm((current) => ({ ...current, expenseDate: event.target.value }))}
+            required
+          />
+        </label>
+
+        <label className="space-y-1 text-sm">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Medio de pago</span>
+          <select
+            className={inputClass}
+            value={form.paymentMethod}
+            onChange={(event) => setForm((current) => ({ ...current, paymentMethod: event.target.value }))}
+          >
+            <option>Efectivo</option>
+            <option>Transferencia</option>
+            <option>Tarjeta</option>
+          </select>
+        </label>
+
+        <label className="space-y-1 text-sm md:col-span-2 xl:col-span-1">
+          <span className="font-medium text-gray-700 dark:text-gray-300">Proveedor (opcional)</span>
+          <input
+            className={inputClass}
+            value={form.provider}
+            onChange={(event) => setForm((current) => ({ ...current, provider: event.target.value }))}
+            placeholder="Nombre del proveedor"
+          />
+        </label>
+
         <div className="flex items-end">
           <button type="submit" className="h-10 w-full rounded-md bg-gray-950 px-4 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200">
             Guardar gasto
@@ -314,6 +355,7 @@ function ExpenseForm({ onCancel, onSubmit }) {
 export default function FinancialDashboard({
   summary,
   currency = "USD",
+  memberCount = 0,
   isLoading = false,
   onRegisterPayment,
   onRegisterExpense,
@@ -340,6 +382,25 @@ export default function FinancialDashboard({
     return { receivable, profit, delta, deltaPercentage };
   }, [data]);
 
+  const chartData = useMemo(
+    () =>
+      data.monthlyRevenue.map((item, index) => ({
+        ...item,
+        expenses: item.expenses || 0,
+        users: index === data.monthlyRevenue.length - 1 ? memberCount : item.users || 0,
+      })),
+    [data.monthlyRevenue, memberCount],
+  );
+
+  const expensesByCategory = useMemo(
+    () =>
+      data.recentExpenses.reduce((totalsByCategory, expense) => {
+        totalsByCategory[expense.category] = (totalsByCategory[expense.category] || 0) + expense.amount;
+        return totalsByCategory;
+      }, {}),
+    [data.recentExpenses],
+  );
+
   if (isLoading) {
     return (
       <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
@@ -348,7 +409,16 @@ export default function FinancialDashboard({
     );
   }
 
-  const maxRevenue = Math.max(...data.monthlyRevenue.map((item) => item.revenue), 1);
+  const maxMoney = Math.max(...chartData.flatMap((item) => [item.revenue, item.expenses]), 1);
+  const maxUsers = Math.max(...chartData.map((item) => item.users), 1);
+  const chartWidth = Math.max(chartData.length * 100, 100);
+  const chartLinePoints = chartData
+    .map((item, index) => {
+      const x = (index + 0.5) * (chartWidth / chartData.length);
+      const y = 190 - (item.users / maxUsers) * 150;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   function finishAction(message) {
     setActiveAction(null);
@@ -385,8 +455,15 @@ export default function FinancialDashboard({
       ]),
       [],
       ["Gastos recientes"],
-      ["Categoria", "Descripcion", "Monto", "Fecha"],
-      ...data.recentExpenses.map((item) => [item.category, item.description, item.amount, item.createdAt]),
+      ["Categoria", "Descripcion", "Monto", "Fecha", "Medio de pago", "Proveedor"],
+      ...data.recentExpenses.map((item) => [
+        item.category,
+        item.description,
+        item.amount,
+        item.expenseDate || item.createdAt,
+        item.paymentMethod || "",
+        item.provider || "",
+      ]),
     ];
     const csv = rows
       .map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(";"))
@@ -443,6 +520,23 @@ export default function FinancialDashboard({
         />
       </div>
 
+      <div className="grid gap-3 sm:grid-cols-3">
+        {["Infraestructura", "Maquinaria", "Servicios"].map((category) => (
+          <article
+            key={category}
+            className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+              {category}
+            </p>
+            <p className="mt-2 text-xl font-semibold text-gray-950 dark:text-white">
+              {formatCurrency(expensesByCategory[category] || 0, currency)}
+            </p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Gastos registrados en esta categoria</p>
+          </article>
+        ))}
+      </div>
+
       <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -459,7 +553,7 @@ export default function FinancialDashboard({
           />
           <ActionButton
             title="Registrar gasto"
-            description="Actualiza gastos y utilidad neta."
+            description="Clasifica infraestructura, maquinaria o servicios."
             onClick={() => setActiveAction(activeAction === "expense" ? null : "expense")}
           />
           <ActionButton
@@ -498,8 +592,10 @@ export default function FinancialDashboard({
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-base font-semibold text-gray-950 dark:text-white">Ingresos mensuales</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Comportamiento de los ultimos seis meses.</p>
+              <h2 className="text-base font-semibold text-gray-950 dark:text-white">Ingresos, gastos y usuarios</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Relacion mensual entre el movimiento financiero y los usuarios registrados.
+              </p>
             </div>
             <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-200">
               {totals.deltaPercentage >= 0 ? "+" : ""}
@@ -507,27 +603,97 @@ export default function FinancialDashboard({
             </span>
           </div>
 
-          <div className="mt-6 flex h-64 items-end gap-3 border-b border-gray-200 px-2 dark:border-gray-700">
-            {data.monthlyRevenue.map((item, index) => {
-              const isCurrentMonth = index === data.monthlyRevenue.length - 1;
-              const height = Math.max((item.revenue / maxRevenue) * 100, 4);
+          <div className="mt-4 flex flex-wrap gap-4 text-xs font-medium text-gray-600 dark:text-gray-300">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-3 w-3 rounded-sm bg-emerald-500" />
+              Ingresos
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-3 w-3 rounded-sm bg-amber-500" />
+              Gastos
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-0.5 w-5 bg-indigo-500" />
+              Usuarios
+            </span>
+          </div>
 
-              return (
-                <div key={item.month} className="flex h-full min-w-0 flex-1 flex-col justify-end">
-                  <div className="mb-2 text-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                    {formatCompactCurrency(item.revenue, currency)}
+          <div className="relative mt-5 h-72 border-b border-gray-200 px-2 dark:border-gray-700">
+            <div className="absolute inset-x-2 bottom-8 top-0 flex items-end gap-3">
+              {chartData.map((item) => {
+                const revenueHeight = Math.max((item.revenue / maxMoney) * 100, 3);
+                const expenseHeight = Math.max((item.expenses / maxMoney) * 100, 3);
+
+                return (
+                  <div key={item.month} className="flex h-full min-w-0 flex-1 items-end justify-center gap-1">
+                    <div
+                      className="w-1/3 rounded-t bg-emerald-500 transition-all"
+                      style={{ height: `${revenueHeight}%` }}
+                      title={`${item.month} - Ingresos: ${formatCurrency(item.revenue, currency)}`}
+                    />
+                    <div
+                      className="w-1/3 rounded-t bg-amber-500 transition-all"
+                      style={{ height: `${expenseHeight}%` }}
+                      title={`${item.month} - Gastos: ${formatCurrency(item.expenses, currency)}`}
+                    />
                   </div>
-                  <div
-                    className={`w-full rounded-t-md transition-all ${isCurrentMonth ? "bg-sky-500" : "bg-gray-300 dark:bg-gray-600"}`}
-                    style={{ height: `${height}%` }}
-                    title={`${item.month}: ${formatCurrency(item.revenue, currency)}`}
-                  />
-                  <div className={`py-2 text-center text-xs font-medium ${isCurrentMonth ? "text-sky-700 dark:text-sky-300" : "text-gray-500 dark:text-gray-400"}`}>
-                    {item.month}
-                  </div>
+                );
+              })}
+            </div>
+
+            <svg
+              className="pointer-events-none absolute inset-x-2 bottom-8 top-0 h-[calc(100%-2rem)] w-[calc(100%-1rem)] overflow-visible text-indigo-600 dark:text-indigo-300"
+              viewBox={`0 0 ${chartWidth} 200`}
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <polyline
+                points={chartLinePoints}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                vectorEffect="non-scaling-stroke"
+              />
+              {chartData.map((item, index) => {
+                const x = (index + 0.5) * (chartWidth / chartData.length);
+                const y = 190 - (item.users / maxUsers) * 150;
+
+                return (
+                  <g key={`${item.month}-users`}>
+                    <circle cx={x} cy={y} r="5" fill="currentColor" vectorEffect="non-scaling-stroke" />
+                    <text
+                      x={x}
+                      y={Math.max(y - 10, 16)}
+                      textAnchor="middle"
+                      fill="currentColor"
+                      className="text-[11px] font-semibold"
+                    >
+                      {item.users}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+
+            <div className="absolute inset-x-2 bottom-0 flex gap-3">
+              {chartData.map((item, index) => (
+                <div
+                  key={`${item.month}-label`}
+                  className={`min-w-0 flex-1 py-2 text-center text-xs font-medium ${
+                    index === chartData.length - 1
+                      ? "text-sky-700 dark:text-sky-300"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {item.month}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-3 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+            <span>Escala monetaria: hasta {formatCompactCurrency(maxMoney, currency)}</span>
+            <span>Usuarios: hasta {maxUsers}</span>
           </div>
         </div>
 
@@ -607,6 +773,7 @@ export default function FinancialDashboard({
                 <tr>
                   <th className="px-4 py-3">Concepto</th>
                   <th className="px-4 py-3">Monto</th>
+                  <th className="px-4 py-3">Pago</th>
                   <th className="px-4 py-3">Fecha</th>
                 </tr>
               </thead>
@@ -621,7 +788,11 @@ export default function FinancialDashboard({
                       {formatCurrency(expense.amount, currency)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
-                      {formatDateTime(expense.createdAt)}
+                      <p>{expense.paymentMethod || "-"}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{expense.provider || "Sin proveedor"}</p>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-gray-700 dark:text-gray-300">
+                      {expense.expenseDate ? formatDate(expense.expenseDate) : formatDateTime(expense.createdAt)}
                     </td>
                   </tr>
                 ))}
