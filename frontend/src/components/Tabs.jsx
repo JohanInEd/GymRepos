@@ -4,6 +4,12 @@ const icons = {
       <path d="M4 19V9M10 19V5M16 19v-7M22 19V3" strokeLinecap="round" />
     </svg>
   ),
+  analytics: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M4 19V9M10 19V5M16 19v-7M22 19V3" strokeLinecap="round" />
+      <path d="m3 7 5-4 5 4 7-5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
   clients: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -18,6 +24,12 @@ const icons = {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <rect x="3" y="5" width="18" height="16" rx="2" />
       <path d="M16 3v4M8 3v4M3 11h18M8 15h2M14 15h2" strokeLinecap="round" />
+    </svg>
+  ),
+  progress: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M3 20h18M5 16l4-5 4 3 6-8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="5" cy="16" r="1.5" /><circle cx="9" cy="11" r="1.5" /><circle cx="13" cy="14" r="1.5" /><circle cx="19" cy="6" r="1.5" />
     </svg>
   ),
   classes: (

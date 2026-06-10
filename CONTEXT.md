@@ -41,6 +41,7 @@ Main files:
 - `frontend/src/index.css`
 - `frontend/tailwind.config.js`
 - `frontend/src/components/AccessManagement.jsx`
+- `frontend/src/components/AnalyticsDashboard.jsx`
 - `frontend/src/components/AuthScreen.jsx`
 - `frontend/src/components/ClassSchedule.jsx`
 - `frontend/src/components/ClientForm.jsx`
@@ -48,6 +49,7 @@ Main files:
 - `frontend/src/components/FinancialDashboard.jsx`
 - `frontend/src/components/GymSetup.jsx`
 - `frontend/src/components/MemberDetail.jsx`
+- `frontend/src/components/MemberProgress.jsx`
 - `frontend/src/components/MembersTable.jsx`
 - `frontend/src/components/MembershipAlert.jsx`
 - `frontend/src/components/MembershipCalendar.jsx`
@@ -59,9 +61,9 @@ Current UI features:
 - Local demo authentication screen with active/inactive user validation.
 - Role-based navigation and action permissions:
   - Owner: full access, including user management.
-  - Administrator: finance, clients, check-in, memberships, classes, operations, and gym setup.
+  - Administrator: finance, analytics, clients, check-in, memberships, progress, classes, operations, and gym setup.
   - Reception: clients, check-in, memberships, and class reservations.
-  - Trainer: read-only client access plus class scheduling and reservations.
+  - Trainer: read-only client access plus progress tracking, class scheduling, and reservations.
 - User management includes:
   - Creating users with a role and temporary password.
   - Activating and deactivating accounts.
@@ -76,6 +78,27 @@ Current UI features:
   - Capacity enforcement.
   - Expired-membership blocking.
   - Reservation cancellation and attendee lists.
+- Progress tab includes:
+  - Per-member dated body measurement history.
+  - Weight and waist trend charts.
+  - Current weight, waist, body-fat, and active-goal metrics.
+  - Body weight, chest, waist, hip, and body-fat registration.
+  - Goals with target values, dates, units, and completion status.
+  - Trainer notes with author and timestamp.
+  - New measurements update the member's current body metrics.
+  - Owners, administrators, and trainers can edit progress data.
+  - Reception does not have access to progress health data.
+- Analytics tab includes:
+  - Six-month and twelve-month analysis periods.
+  - Estimated retention and churn from current membership status.
+  - Monthly new-member versus expired-membership comparison.
+  - Average payment ticket.
+  - Revenue grouped by plan.
+  - Revenue grouped by payment method.
+  - Gym attendance grouped by hour with peak-hour detection.
+  - Automatically generated business insights.
+  - Analytics access is limited to owners and administrators.
+  - Retention and churn remain estimates until the backend stores explicit cancellation events.
 - Operations tab includes:
   - Monthly expense budgets by category.
   - Budget utilization indicators.
@@ -86,7 +109,7 @@ Current UI features:
   - Uses Tailwind class-based dark mode (`darkMode: "class"`).
   - Stores the selected theme in `localStorage` under `gym-theme`.
   - Applies the `dark` class to `document.documentElement`.
-- Permission-aware tabs: `Finanzas`, `Clientes`, `Check-in`, `Mensualidad`, `Clases`, `Operaciones`, `Gimnasio`, and `Usuarios`.
+- Permission-aware tabs: `Finanzas`, `Analitica`, `Clientes`, `Check-in`, `Mensualidad`, `Progreso`, `Clases`, `Operaciones`, `Gimnasio`, and `Usuarios`.
 - Finance tab includes:
   - Current-month income, expenses, net profit, and outstanding receivables.
   - Six-month combined chart with income, expenses, and registered-user count.
@@ -236,7 +259,7 @@ Latest pushed commits:
 
 - `bc260ce Initial gym SaaS dashboard`
 - `c231be9 Add dismissible membership alerts and SQL Server structure`
-- Latest commit: `Add gym setup tab and plan registration`
+- Latest pushed commit: `aa3a51b Add role access classes and operations`
 
 Current branch for ongoing feature work:
 
@@ -244,6 +267,12 @@ Current branch for ongoing feature work:
 
 Most recent frontend changes:
 
+- Added advanced analytics for member movement, retention, churn, revenue mix, and peak attendance hours.
+- Added six-month and twelve-month analytics periods with generated business insights.
+- Added an analytics permission for owners and administrators.
+- Added member progress tracking with measurement history, trend charts, goals, and trainer notes.
+- Added a dedicated progress permission for owners, administrators, and trainers.
+- New progress measurements update the member's current body metrics.
 - Added frontend demo authentication with Owner, Administrator, Reception, and Trainer roles.
 - Added permission-filtered navigation and protected actions.
 - Added user creation and account activation/deactivation.

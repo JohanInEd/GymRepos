@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getRoleLabel, hasPermission } from "./auth.js";
 import AccessManagement from "./components/AccessManagement.jsx";
+import AnalyticsDashboard from "./components/AnalyticsDashboard.jsx";
 import AuthScreen from "./components/AuthScreen.jsx";
 import CheckInDashboard from "./components/CheckInDashboard.jsx";
 import ClassSchedule from "./components/ClassSchedule.jsx";
@@ -9,6 +10,7 @@ import FinancialDashboard from "./components/FinancialDashboard.jsx";
 import GymSetup from "./components/GymSetup.jsx";
 import MembershipAlert from "./components/MembershipAlert.jsx";
 import MemberDetail from "./components/MemberDetail.jsx";
+import MemberProgress from "./components/MemberProgress.jsx";
 import MembersTable from "./components/MembersTable.jsx";
 import OperationsDashboard from "./components/OperationsDashboard.jsx";
 import Tabs from "./components/Tabs.jsx";
@@ -96,6 +98,7 @@ const dashboardSummary = {
         planName: "VIP",
         amount: 180000,
         currency: "COP",
+        method: "Transferencia",
         status: "Paid",
         createdAt: "2026-06-03T14:10:00Z",
         paidAt: "2026-06-03T14:12:00Z",
@@ -106,6 +109,7 @@ const dashboardSummary = {
         planName: "Mensual",
         amount: 95000,
         currency: "COP",
+        method: "Efectivo",
         status: "Pending",
         createdAt: "2026-06-03T13:40:00Z",
         paidAt: null,
@@ -116,6 +120,7 @@ const dashboardSummary = {
         planName: "Anual",
         amount: 890000,
         currency: "COP",
+        method: "Tarjeta",
         status: "Paid",
         createdAt: "2026-06-02T21:00:00Z",
         paidAt: "2026-06-02T21:01:00Z",
@@ -246,6 +251,56 @@ const initialAttendanceLogs = [
     checkedOutAt: null,
     reason: "Plan vencido",
   },
+  {
+    id: "att-003",
+    memberId: "mem-002",
+    fullName: "Carlos Rojas",
+    planName: "Mensual",
+    accessGranted: true,
+    checkedAt: "2026-06-04T11:25:00Z",
+    checkedOutAt: "2026-06-04T12:40:00Z",
+    reason: "Plan por vencer",
+  },
+  {
+    id: "att-004",
+    memberId: "mem-001",
+    fullName: "Laura Mendoza",
+    planName: "VIP",
+    accessGranted: true,
+    checkedAt: "2026-06-04T22:10:00Z",
+    checkedOutAt: "2026-06-04T23:20:00Z",
+    reason: "Plan activo",
+  },
+  {
+    id: "att-005",
+    memberId: "mem-002",
+    fullName: "Carlos Rojas",
+    planName: "Mensual",
+    accessGranted: true,
+    checkedAt: "2026-06-03T23:05:00Z",
+    checkedOutAt: "2026-06-04T00:15:00Z",
+    reason: "Plan por vencer",
+  },
+  {
+    id: "att-006",
+    memberId: "mem-001",
+    fullName: "Laura Mendoza",
+    planName: "VIP",
+    accessGranted: true,
+    checkedAt: "2026-06-02T22:40:00Z",
+    checkedOutAt: "2026-06-02T23:50:00Z",
+    reason: "Plan activo",
+  },
+  {
+    id: "att-007",
+    memberId: "mem-001",
+    fullName: "Laura Mendoza",
+    planName: "VIP",
+    accessGranted: true,
+    checkedAt: "2026-06-01T15:30:00Z",
+    checkedOutAt: "2026-06-01T16:45:00Z",
+    reason: "Plan activo",
+  },
 ];
 
 const initialUsers = [
@@ -343,6 +398,26 @@ const initialShifts = [
   { id: "shift-002", employee: "Camila Lopez", role: "Recepcion", date: "2026-06-11", start: "06:00", end: "14:00", commission: 0 },
 ];
 
+const initialProgressRecords = [
+  { id: "progress-001", memberId: "mem-001", date: "2026-03-20", weightKg: 66.2, chestCm: 92, waistCm: 74, hipCm: 98, bodyFatPercentage: 26.5, recordedBy: "Diego Martinez" },
+  { id: "progress-002", memberId: "mem-001", date: "2026-04-20", weightKg: 64.8, chestCm: 92, waistCm: 72, hipCm: 97, bodyFatPercentage: 25.1, recordedBy: "Diego Martinez" },
+  { id: "progress-003", memberId: "mem-001", date: "2026-05-20", weightKg: 63.4, chestCm: 91, waistCm: 71, hipCm: 96, bodyFatPercentage: 23.9, recordedBy: "Diego Martinez" },
+  { id: "progress-004", memberId: "mem-001", date: "2026-06-10", weightKg: 62, chestCm: 91, waistCm: 70, hipCm: 96, bodyFatPercentage: 22.8, recordedBy: "Diego Martinez" },
+  { id: "progress-005", memberId: "mem-002", date: "2026-04-09", weightKg: 84, chestCm: 104, waistCm: 90, hipCm: 96, bodyFatPercentage: 24.2, recordedBy: "Diego Martinez" },
+  { id: "progress-006", memberId: "mem-002", date: "2026-06-07", weightKg: 81, chestCm: 103, waistCm: 86, hipCm: 94, bodyFatPercentage: 21.7, recordedBy: "Diego Martinez" },
+];
+
+const initialProgressGoals = [
+  { id: "goal-001", memberId: "mem-001", title: "Llegar a 60 kg", targetValue: 60, unit: "kg", targetDate: "2026-08-20", completed: false, createdAt: "2026-05-20T14:00:00Z" },
+  { id: "goal-002", memberId: "mem-001", title: "Reducir cintura", targetValue: 68, unit: "cm", targetDate: "2026-07-31", completed: false, createdAt: "2026-05-20T14:05:00Z" },
+  { id: "goal-003", memberId: "mem-002", title: "Completar 12 sesiones", targetValue: 12, unit: "sesiones", targetDate: "2026-07-15", completed: false, createdAt: "2026-06-01T10:00:00Z" },
+];
+
+const initialProgressNotes = [
+  { id: "note-001", memberId: "mem-001", text: "Buena adherencia al plan. Aumentar progresivamente el trabajo de fuerza en tren inferior.", author: "Diego Martinez", createdAt: "2026-06-10T15:30:00Z" },
+  { id: "note-002", memberId: "mem-002", text: "Mejoro la resistencia cardiovascular. Mantener tecnica en sentadilla antes de subir carga.", author: "Diego Martinez", createdAt: "2026-06-07T13:20:00Z" },
+];
+
 export default function App() {
   const [users, setUsers] = useState(initialUsers);
   const [currentUser, setCurrentUser] = useState(null);
@@ -361,14 +436,19 @@ export default function App() {
   const [budgets, setBudgets] = useState(initialBudgets);
   const [equipment, setEquipment] = useState(initialEquipment);
   const [shifts, setShifts] = useState(initialShifts);
+  const [progressRecords, setProgressRecords] = useState(initialProgressRecords);
+  const [progressGoals, setProgressGoals] = useState(initialProgressGoals);
+  const [progressNotes, setProgressNotes] = useState(initialProgressNotes);
   const isDarkMode = theme === "dark";
   const navigationItems = useMemo(
     () =>
       [
         { id: "finance", label: "Finanzas", permission: "finance" },
+        { id: "analytics", label: "Analitica", permission: "analytics" },
         { id: "clients", label: "Clientes", permission: "clients" },
         { id: "checkin", label: "Check-in", permission: "checkin" },
         { id: "membership", label: "Mensualidad", permission: "membership" },
+        { id: "progress", label: "Progreso", permission: "progress" },
         { id: "classes", label: "Clases", permission: "classes" },
         { id: "operations", label: "Operaciones", permission: "operations" },
         { id: "setup", label: "Gimnasio", permission: "setup" },
@@ -381,6 +461,11 @@ export default function App() {
       eyebrow: "Vista general",
       title: "Panel financiero",
       description: "Controla el rendimiento y los movimientos de tu negocio.",
+    },
+    analytics: {
+      eyebrow: "Inteligencia del negocio",
+      title: "Analitica avanzada",
+      description: "Entiende crecimiento, retencion, ingresos y patrones de asistencia.",
     },
     clients: {
       eyebrow: "Comunidad",
@@ -396,6 +481,11 @@ export default function App() {
       eyebrow: "Suscripciones",
       title: "Mensualidades",
       description: "Revisa vencimientos y actualiza periodos de servicio.",
+    },
+    progress: {
+      eyebrow: "Evolucion del cliente",
+      title: "Seguimiento de progreso",
+      description: "Registra medidas, objetivos y observaciones de entrenamiento.",
     },
     classes: {
       eyebrow: "Agenda y capacidad",
@@ -579,6 +669,47 @@ export default function App() {
   function handleCreateShift(shift) {
     if (hasPermission(currentUser, "operations")) {
       setShifts((current) => [shift, ...current]);
+    }
+  }
+
+  function handleAddProgressMeasurement(record) {
+    if (!hasPermission(currentUser, "progress")) return;
+
+    setProgressRecords((current) => [...current, record]);
+    setMembers((current) =>
+      current.map((member) =>
+        member.memberId === record.memberId
+          ? {
+              ...member,
+              bodyMetrics: {
+                ...member.bodyMetrics,
+                weightKg: record.weightKg ?? member.bodyMetrics?.weightKg,
+                chestCm: record.chestCm ?? member.bodyMetrics?.chestCm,
+                waistCm: record.waistCm ?? member.bodyMetrics?.waistCm,
+                hipCm: record.hipCm ?? member.bodyMetrics?.hipCm,
+              },
+            }
+          : member,
+      ),
+    );
+  }
+
+  function handleAddProgressGoal(goal) {
+    if (hasPermission(currentUser, "progress")) {
+      setProgressGoals((current) => [goal, ...current]);
+    }
+  }
+
+  function handleToggleProgressGoal(goalId) {
+    if (!hasPermission(currentUser, "progress")) return;
+    setProgressGoals((current) =>
+      current.map((goal) => (goal.id === goalId ? { ...goal, completed: !goal.completed } : goal)),
+    );
+  }
+
+  function handleAddProgressNote(note) {
+    if (hasPermission(currentUser, "progress")) {
+      setProgressNotes((current) => [note, ...current]);
     }
   }
 
@@ -948,6 +1079,15 @@ export default function App() {
           />
         ) : null}
 
+        {activeTab === "analytics" ? (
+          <AnalyticsDashboard
+            members={members}
+            financialSummary={financialSummary}
+            attendanceLogs={attendanceLogs}
+            plans={plans}
+          />
+        ) : null}
+
         {activeTab === "clients" ? (
           <section className="space-y-6">
             {currentUser.role !== "trainer" ? (
@@ -972,6 +1112,8 @@ export default function App() {
                   setSelectedMemberId(member.memberId);
                   if (hasPermission(currentUser, "membership")) {
                     setActiveTab("membership");
+                  } else if (hasPermission(currentUser, "progress")) {
+                    setActiveTab("progress");
                   }
                 }}
               />
@@ -999,6 +1141,37 @@ export default function App() {
 
             <MemberDetail member={selectedMember} onUpdateMembership={handleUpdateMembership} />
           </div>
+        ) : null}
+
+        {activeTab === "progress" ? (
+          <section className="space-y-6">
+            <div className="space-y-3">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-950 dark:text-white">Seleccionar cliente</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  El historial, los objetivos y las notas se guardan por cliente.
+                </p>
+              </div>
+              <MembersTable
+                members={members}
+                selectedMemberId={selectedMember?.memberId}
+                onSelectMember={(member) => setSelectedMemberId(member.memberId)}
+              />
+            </div>
+
+            <MemberProgress
+              member={selectedMember}
+              records={progressRecords}
+              goals={progressGoals}
+              notes={progressNotes}
+              canEdit={["owner", "admin", "trainer"].includes(currentUser.role)}
+              currentUser={currentUser}
+              onAddMeasurement={handleAddProgressMeasurement}
+              onAddGoal={handleAddProgressGoal}
+              onToggleGoal={handleToggleProgressGoal}
+              onAddNote={handleAddProgressNote}
+            />
+          </section>
         ) : null}
 
         {activeTab === "checkin" ? (
