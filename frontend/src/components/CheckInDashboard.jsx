@@ -69,6 +69,27 @@ function getAccessDecision(member) {
   };
 }
 
+function StatCard({ label, value, tone = "emerald" }) {
+  const tones = {
+    emerald: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300",
+    rose: "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300",
+    amber: "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-300",
+    sky: "bg-sky-100 text-sky-600 dark:bg-sky-950 dark:text-sky-300",
+  };
+
+  return (
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tones[tone]}`}>
+          <span className="h-2.5 w-2.5 rounded-full bg-current" />
+        </span>
+      </div>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{value}</p>
+    </article>
+  );
+}
+
 export default function CheckInDashboard({
   members,
   attendanceLogs,
@@ -153,30 +174,10 @@ export default function CheckInDashboard({
   return (
     <section className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Entradas hoy</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
-            {todayLogs.filter((log) => log.accessGranted).length}
-          </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Accesos bloqueados</p>
-          <p className="mt-2 text-2xl font-semibold text-red-600 dark:text-red-300">
-            {todayLogs.filter((log) => !log.accessGranted).length}
-          </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Planes por vencer</p>
-          <p className="mt-2 text-2xl font-semibold text-yellow-600 dark:text-yellow-300">
-            {members.filter((member) => member.status === "ExpiringSoon").length}
-          </p>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Personas dentro</p>
-          <p className="mt-2 text-2xl font-semibold text-sky-600 dark:text-sky-300">
-            {attendanceLogs.filter((log) => log.accessGranted && !log.checkedOutAt).length}
-          </p>
-        </div>
+        <StatCard label="Entradas hoy" value={todayLogs.filter((log) => log.accessGranted).length} />
+        <StatCard label="Accesos bloqueados" value={todayLogs.filter((log) => !log.accessGranted).length} tone="rose" />
+        <StatCard label="Planes por vencer" value={members.filter((member) => member.status === "ExpiringSoon").length} tone="amber" />
+        <StatCard label="Personas dentro" value={attendanceLogs.filter((log) => log.accessGranted && !log.checkedOutAt).length} tone="sky" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
@@ -371,7 +372,7 @@ export default function CheckInDashboard({
                   disabled={Boolean(openAttendance)}
                   className={`h-10 rounded-md px-4 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400 ${
                     accessDecision.accessGranted && !openAttendance
-                      ? "bg-gray-950 hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+                      ? "bg-emerald-500 shadow-md shadow-emerald-500/20 hover:bg-emerald-600"
                       : "bg-red-600 hover:bg-red-700"
                   }`}
                 >

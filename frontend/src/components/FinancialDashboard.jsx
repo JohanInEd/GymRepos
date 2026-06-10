@@ -91,16 +91,29 @@ function PaymentStatusBadge({ status }) {
 function MetricCard({ label, value, detail, tone = "default" }) {
   const valueStyles = {
     default: "text-gray-950 dark:text-white",
-    positive: "text-green-700 dark:text-green-300",
+    positive: "text-emerald-700 dark:text-emerald-300",
     warning: "text-amber-700 dark:text-amber-300",
-    negative: "text-red-700 dark:text-red-300",
+    negative: "text-rose-700 dark:text-rose-300",
+  };
+  const iconStyles = {
+    default: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
+    positive: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300",
+    warning: "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-300",
+    negative: "bg-rose-100 text-rose-600 dark:bg-rose-950 dark:text-rose-300",
   };
 
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</p>
-      <p className={`mt-2 text-2xl font-semibold ${valueStyles[tone]}`}>{value}</p>
-      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{detail}</p>
+    <article className="group rounded-2xl border border-slate-200/80 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">{label}</p>
+        <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${iconStyles[tone]}`}>
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </div>
+      <p className={`mt-3 text-2xl font-bold tracking-tight ${valueStyles[tone]}`}>{value}</p>
+      <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">{detail}</p>
     </article>
   );
 }
@@ -112,7 +125,7 @@ function ActionButton({ title, description, onClick, primary = false }) {
       onClick={onClick}
       className={`rounded-lg border p-4 text-left transition ${
         primary
-          ? "border-gray-950 bg-gray-950 text-white hover:bg-gray-800 dark:border-white dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+          ? "border-emerald-500 bg-emerald-500 text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600"
           : "border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-500 dark:hover:bg-gray-700"
       }`}
     >
@@ -229,7 +242,7 @@ function PaymentForm({ receivables, currency, onCancel, onSubmit }) {
         </label>
 
         <div className="flex items-end md:col-span-2 xl:col-span-4">
-          <button type="submit" className="h-10 rounded-md bg-gray-950 px-4 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200">
+          <button type="submit" className="h-10 rounded-xl bg-emerald-500 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600">
             Guardar pago
           </button>
         </div>
@@ -343,7 +356,7 @@ function ExpenseForm({ onCancel, onSubmit }) {
         </label>
 
         <div className="flex items-end">
-          <button type="submit" className="h-10 w-full rounded-md bg-gray-950 px-4 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200">
+          <button type="submit" className="h-10 w-full rounded-xl bg-emerald-500 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 hover:bg-emerald-600">
             Guardar gasto
           </button>
         </div>

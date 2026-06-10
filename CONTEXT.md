@@ -36,9 +36,13 @@ The frontend has been validated with `npm run build`.
 Main files:
 
 - `frontend/src/App.jsx`
+- `frontend/src/auth.js`
 - `frontend/src/main.jsx`
 - `frontend/src/index.css`
 - `frontend/tailwind.config.js`
+- `frontend/src/components/AccessManagement.jsx`
+- `frontend/src/components/AuthScreen.jsx`
+- `frontend/src/components/ClassSchedule.jsx`
 - `frontend/src/components/ClientForm.jsx`
 - `frontend/src/components/CheckInDashboard.jsx`
 - `frontend/src/components/FinancialDashboard.jsx`
@@ -47,15 +51,42 @@ Main files:
 - `frontend/src/components/MembersTable.jsx`
 - `frontend/src/components/MembershipAlert.jsx`
 - `frontend/src/components/MembershipCalendar.jsx`
+- `frontend/src/components/OperationsDashboard.jsx`
 - `frontend/src/components/Tabs.jsx`
 
 Current UI features:
 
+- Local demo authentication screen with active/inactive user validation.
+- Role-based navigation and action permissions:
+  - Owner: full access, including user management.
+  - Administrator: finance, clients, check-in, memberships, classes, operations, and gym setup.
+  - Reception: clients, check-in, memberships, and class reservations.
+  - Trainer: read-only client access plus class scheduling and reservations.
+- User management includes:
+  - Creating users with a role and temporary password.
+  - Activating and deactivating accounts.
+  - Permission summaries per role.
+  - Protection against deactivating the current user.
+- Demo accounts use password `Demo123!`.
+- Authentication is frontend-only mock behavior until the runnable backend and secure password storage are implemented.
+- Classes tab includes:
+  - Class scheduling with trainer, date, time, duration, capacity, and room.
+  - Client reservations.
+  - Duplicate-reservation prevention.
+  - Capacity enforcement.
+  - Expired-membership blocking.
+  - Reservation cancellation and attendee lists.
+- Operations tab includes:
+  - Monthly expense budgets by category.
+  - Budget utilization indicators.
+  - Finance expense registrations automatically update matching operational budgets.
+  - Equipment inventory, maintenance dates, and operational status.
+  - Staff shift scheduling and commissions.
 - Dark mode / light mode toggle in the header.
   - Uses Tailwind class-based dark mode (`darkMode: "class"`).
   - Stores the selected theme in `localStorage` under `gym-theme`.
   - Applies the `dark` class to `document.documentElement`.
-- Tabs: `Finanzas`, `Clientes`, `Check-in`, `Mensualidad`, `Gimnasio`.
+- Permission-aware tabs: `Finanzas`, `Clientes`, `Check-in`, `Mensualidad`, `Clases`, `Operaciones`, `Gimnasio`, and `Usuarios`.
 - Finance tab includes:
   - Current-month income, expenses, net profit, and outstanding receivables.
   - Six-month combined chart with income, expenses, and registered-user count.
@@ -213,6 +244,11 @@ Current branch for ongoing feature work:
 
 Most recent frontend changes:
 
+- Added frontend demo authentication with Owner, Administrator, Reception, and Trainer roles.
+- Added permission-filtered navigation and protected actions.
+- Added user creation and account activation/deactivation.
+- Added class scheduling, capacity management, client reservations, and cancellations.
+- Added Operations for expense budgets, equipment maintenance, shifts, and commissions.
 - Expanded expense registration with Infrastructure, Machinery, and Services categories.
 - Added expense date, payment method, and optional provider fields.
 - Added expense totals grouped by category.

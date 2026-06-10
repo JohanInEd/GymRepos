@@ -69,7 +69,7 @@ export default function ClientForm({ onCreate, planOptions = ["Mensual", "VIP", 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200/80 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       <div className="flex items-center justify-between gap-3 border-b border-gray-200 pb-3 dark:border-gray-700">
         <div>
           <h2 className="text-base font-semibold text-gray-950 dark:text-white">Crear cliente</h2>
@@ -77,7 +77,7 @@ export default function ClientForm({ onCreate, planOptions = ["Mensual", "VIP", 
         </div>
         <button
           type="submit"
-          className="h-10 rounded-md bg-gray-950 px-4 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+          className="h-10 rounded-xl bg-emerald-500 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-600"
         >
           Guardar
         </button>

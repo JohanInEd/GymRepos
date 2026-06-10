@@ -24,11 +24,16 @@ export default function MemberDetail({ member, onUpdateMembership }) {
 
   return (
     <aside className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <div>
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Perfil del cliente</p>
-        <h2 className="text-xl font-semibold text-gray-950 dark:text-white">{member.fullName}</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{member.email}</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{member.phone || "Sin telefono"}</p>
+      <div className="flex items-center gap-3">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-sm font-bold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+          {member.fullName.split(" ").map((name) => name[0]).slice(0, 2).join("")}
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-600 dark:text-emerald-400">Perfil del cliente</p>
+          <h2 className="truncate text-xl font-bold text-gray-950 dark:text-white">{member.fullName}</h2>
+          <p className="truncate text-sm text-gray-500 dark:text-gray-400">{member.email}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{member.phone || "Sin telefono"}</p>
+        </div>
       </div>
 
       <MembershipCalendar member={member} onUpdateMembership={onUpdateMembership} />

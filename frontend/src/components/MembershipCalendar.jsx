@@ -112,9 +112,9 @@ export default function MembershipCalendar({ member, onUpdateMembership }) {
             {formatDate(member.startDate)} - {formatDate(member.endDate)}
           </p>
         </div>
-        <div className="rounded-lg bg-gray-950 px-4 py-3 text-center text-white dark:bg-white dark:text-gray-950">
+        <div className="rounded-2xl bg-emerald-500 px-4 py-3 text-center text-white shadow-md shadow-emerald-500/20">
           <p className="text-2xl font-semibold">{remainingDays}</p>
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-300 dark:text-gray-600">dias restantes</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-emerald-50">dias restantes</p>
         </div>
       </div>
 

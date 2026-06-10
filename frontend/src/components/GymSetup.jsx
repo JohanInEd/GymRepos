@@ -112,7 +112,7 @@ export default function GymSetup({ gymProfile, plans, onSaveGymProfile, onCreate
             </div>
             <button
               type="submit"
-              className="h-10 rounded-md bg-gray-950 px-4 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+              className="h-10 rounded-xl bg-emerald-500 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-600"
             >
               Guardar gimnasio
             </button>
@@ -193,7 +193,7 @@ export default function GymSetup({ gymProfile, plans, onSaveGymProfile, onCreate
             </div>
             <button
               type="submit"
-              className="h-10 rounded-md bg-gray-950 px-4 text-sm font-semibold text-white transition hover:bg-gray-800 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"
+              className="h-10 rounded-xl bg-emerald-500 px-5 text-sm font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-600"
             >
               Agregar plan
             </button>
