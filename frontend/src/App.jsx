@@ -8,6 +8,7 @@ import ClassSchedule from "./components/ClassSchedule.jsx";
 import ClientForm from "./components/ClientForm.jsx";
 import FinancialDashboard from "./components/FinancialDashboard.jsx";
 import GymSetup from "./components/GymSetup.jsx";
+import InventoryDashboard from "./components/InventoryDashboard.jsx";
 import MembershipAlert from "./components/MembershipAlert.jsx";
 import MemberDetail from "./components/MemberDetail.jsx";
 import MemberProgress from "./components/MemberProgress.jsx";
@@ -398,6 +399,14 @@ const initialShifts = [
   { id: "shift-002", employee: "Camila Lopez", role: "Recepcion", date: "2026-06-11", start: "06:00", end: "14:00", commission: 0 },
 ];
 
+const initialProducts = [
+  { id: "product-001", sku: "BEB-001", name: "Agua mineral", category: "Bebidas", price: 4000, stock: 28, minimumStock: 8 },
+  { id: "product-002", sku: "BEB-002", name: "Bebida hidratante", category: "Bebidas", price: 7000, stock: 14, minimumStock: 6 },
+  { id: "product-003", sku: "SNK-001", name: "Barra de proteina", category: "Snacks", price: 8500, stock: 5, minimumStock: 5 },
+  { id: "product-004", sku: "SUP-001", name: "Proteina whey 2 lb", category: "Suplementos", price: 145000, stock: 3, minimumStock: 2 },
+  { id: "product-005", sku: "ACC-001", name: "Toalla deportiva", category: "Accesorios", price: 25000, stock: 9, minimumStock: 4 },
+];
+
 const initialProgressRecords = [
   { id: "progress-001", memberId: "mem-001", date: "2026-03-20", weightKg: 66.2, chestCm: 92, waistCm: 74, hipCm: 98, bodyFatPercentage: 26.5, recordedBy: "Diego Martinez" },
   { id: "progress-002", memberId: "mem-001", date: "2026-04-20", weightKg: 64.8, chestCm: 92, waistCm: 72, hipCm: 97, bodyFatPercentage: 25.1, recordedBy: "Diego Martinez" },
@@ -436,6 +445,7 @@ export default function App() {
   const [budgets, setBudgets] = useState(initialBudgets);
   const [equipment, setEquipment] = useState(initialEquipment);
   const [shifts, setShifts] = useState(initialShifts);
+  const [products, setProducts] = useState(initialProducts);
   const [progressRecords, setProgressRecords] = useState(initialProgressRecords);
   const [progressGoals, setProgressGoals] = useState(initialProgressGoals);
   const [progressNotes, setProgressNotes] = useState(initialProgressNotes);
@@ -450,6 +460,7 @@ export default function App() {
         { id: "membership", label: "Mensualidad", permission: "membership" },
         { id: "progress", label: "Progreso", permission: "progress" },
         { id: "classes", label: "Clases", permission: "classes" },
+        { id: "inventory", label: "Inventario", permission: "inventory" },
         { id: "operations", label: "Operaciones", permission: "operations" },
         { id: "setup", label: "Gimnasio", permission: "setup" },
         { id: "access", label: "Usuarios", permission: "users" },
@@ -491,6 +502,11 @@ export default function App() {
       eyebrow: "Agenda y capacidad",
       title: "Clases y reservas",
       description: "Programa sesiones y reserva cupos para los clientes.",
+    },
+    inventory: {
+      eyebrow: "Productos y ventas",
+      title: "Inventario",
+      description: "Controla productos, precios, existencias y alertas de reposicion.",
     },
     operations: {
       eyebrow: "Administracion interna",
@@ -670,6 +686,50 @@ export default function App() {
     if (hasPermission(currentUser, "operations")) {
       setShifts((current) => [shift, ...current]);
     }
+  }
+
+  function handleSaveProduct(product) {
+    if (!["owner", "admin"].includes(currentUser.role)) {
+      return { ok: false, message: "No tienes permiso para administrar productos." };
+    }
+
+    if (!product.name || !product.sku || !product.category || product.price < 0) {
+      return { ok: false, message: "Completa los datos obligatorios del producto." };
+    }
+
+    const duplicate = products.find(
+      (item) => item.id !== product.id && item.sku.toLowerCase() === product.sku.toLowerCase(),
+    );
+    if (duplicate) {
+      return { ok: false, message: "Ya existe un producto con este codigo SKU." };
+    }
+
+    if (product.id) {
+      setProducts((current) => current.map((item) => (item.id === product.id ? product : item)));
+      return { ok: true, message: "Producto actualizado correctamente." };
+    }
+
+    setProducts((current) => [{ ...product, id: crypto.randomUUID() }, ...current]);
+    return { ok: true, message: "Producto agregado al inventario." };
+  }
+
+  function handleDeleteProduct(productId) {
+    if (!["owner", "admin"].includes(currentUser.role)) {
+      return;
+    }
+
+    setProducts((current) => current.filter((product) => product.id !== productId));
+  }
+
+  function handleUpdateProductStock(productId, stock) {
+    if (!hasPermission(currentUser, "inventory")) {
+      return;
+    }
+
+    const nextStock = Math.max(0, Math.floor(Number(stock) || 0));
+    setProducts((current) =>
+      current.map((product) => (product.id === productId ? { ...product, stock: nextStock } : product)),
+    );
   }
 
   function handleAddProgressMeasurement(record) {
@@ -1199,6 +1259,16 @@ export default function App() {
             onCreateClass={handleCreateClass}
             onReserve={handleReserveClass}
             onCancelReservation={handleCancelReservation}
+          />
+        ) : null}
+
+        {activeTab === "inventory" ? (
+          <InventoryDashboard
+            products={products}
+            canManageProducts={["owner", "admin"].includes(currentUser.role)}
+            onSaveProduct={handleSaveProduct}
+            onDeleteProduct={handleDeleteProduct}
+            onUpdateStock={handleUpdateProductStock}
           />
         ) : null}
 

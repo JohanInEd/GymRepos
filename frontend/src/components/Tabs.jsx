@@ -38,6 +38,12 @@ const icons = {
       <path d="m9 16 2 2 4-5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  inventory: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5v-9Z" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="m4.5 7.5 7.5 4.25 7.5-4.25M12 12v9M8 5.25l8 4.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
   operations: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
       <path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6M8 11h.01M12 11h.01M16 11h.01" strokeLinecap="round" strokeLinejoin="round" />

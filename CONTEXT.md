@@ -25,6 +25,8 @@ npm install
 npm run dev
 ```
 
+Default local URL: `http://localhost:5173`
+
 Build:
 
 ```bash
@@ -32,6 +34,7 @@ npm run build
 ```
 
 The frontend has been validated with `npm run build`.
+The development server was also validated with an HTTP 200 response on June 11, 2026.
 
 Main files:
 
@@ -109,7 +112,15 @@ Current UI features:
   - Uses Tailwind class-based dark mode (`darkMode: "class"`).
   - Stores the selected theme in `localStorage` under `gym-theme`.
   - Applies the `dark` class to `document.documentElement`.
-- Permission-aware tabs: `Finanzas`, `Analitica`, `Clientes`, `Check-in`, `Mensualidad`, `Progreso`, `Clases`, `Operaciones`, `Gimnasio`, and `Usuarios`.
+- Permission-aware tabs: `Finanzas`, `Analitica`, `Clientes`, `Check-in`, `Mensualidad`, `Progreso`, `Clases`, `Inventario`, `Operaciones`, `Gimnasio`, and `Usuarios`.
+- Inventory tab includes:
+  - Product catalog with SKU, name, category, sale price, current stock, and minimum stock.
+  - Product search and category filtering.
+  - Summary metrics for registered products, available units, inventory value, and low-stock products.
+  - Low-stock alerts based on each product's configured minimum.
+  - Owners and administrators can add, edit, and remove products.
+  - Reception can view products and only adjust stock quantities.
+  - Trainers do not have access to inventory.
 - Finance tab includes:
   - Current-month income, expenses, net profit, and outstanding receivables.
   - Six-month combined chart with income, expenses, and registered-user count.
@@ -255,11 +266,13 @@ Important backend note:
 
 ## Git Status Notes
 
-Latest pushed commits:
+Relevant project commits:
 
 - `bc260ce Initial gym SaaS dashboard`
 - `c231be9 Add dismissible membership alerts and SQL Server structure`
-- Latest pushed commit: `aa3a51b Add role access classes and operations`
+- `aa3a51b Add role access classes and operations`
+- `f7de665 Add member progress and advanced analytics`
+- Inventory feature commit: `Add role-aware product inventory`
 
 Current branch for ongoing feature work:
 
@@ -267,6 +280,9 @@ Current branch for ongoing feature work:
 
 Most recent frontend changes:
 
+- Added role-aware product inventory management.
+- Added product creation, editing, deletion, searching, category filtering, and low-stock alerts.
+- Added quantity-only inventory controls for reception.
 - Added advanced analytics for member movement, retention, churn, revenue mix, and peak attendance hours.
 - Added six-month and twelve-month analytics periods with generated business insights.
 - Added an analytics permission for owners and administrators.
