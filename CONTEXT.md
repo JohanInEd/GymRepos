@@ -61,6 +61,18 @@ Main files:
 
 Current UI features:
 
+- Public gym registration from the authentication screen.
+- New gym onboarding includes:
+  - Gym name and city.
+  - Owner name, email, phone, and password.
+  - Initial SaaS plan selection.
+  - Terms acceptance.
+  - Automatic creation of the first user with the `Owner` role.
+  - A clean tenant workspace that does not inherit demo gym data.
+  - A 14-day trial with pending approval and pending email verification status.
+  - Tenant registration and owner login persistence in `localStorage` under `gymflow-registered-gyms`.
+  - Tenant-filtered user management so one gym cannot see another gym's users.
+- Registration, approval, email verification, and password storage remain frontend-only mock behavior until backend authentication is implemented.
 - Local demo authentication screen with active/inactive user validation.
 - Role-based navigation and action permissions:
   - Owner: full access, including user management.
@@ -281,6 +293,10 @@ Current branch for ongoing feature work:
 
 Most recent frontend changes:
 
+- Added self-service gym registration and automatic owner provisioning.
+- Added locally persisted tenant registration records and clean workspaces for newly registered gyms.
+- Added pending approval, email verification, plan, and trial status indicators.
+- Isolated user management by gym tenant and kept registered accounts out of the demo-account picker.
 - Added role-aware product inventory management.
 - Added product creation, editing, deletion, searching, category filtering, and low-stock alerts.
 - Added quantity-only inventory controls for reception.

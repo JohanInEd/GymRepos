@@ -204,6 +204,17 @@ const initialGymProfile = {
   adminRole: "Propietario",
 };
 
+const emptyFinancialSummary = {
+  currentMonthRevenue: 0,
+  previousMonthRevenue: 0,
+  currentMonthExpenses: 0,
+  currentMonthPaidPayments: 0,
+  monthlyRevenue: [],
+  accountsReceivable: [],
+  recentExpenses: [],
+  recentPayments: [],
+};
+
 const initialPlans = [
   {
     id: "plan-001",
@@ -307,35 +318,43 @@ const initialAttendanceLogs = [
 const initialUsers = [
   {
     id: "usr-owner",
+    gymId: "gym-demo",
     name: "Maria Rodriguez",
     email: "admin@powerhousegym.com",
     password: "Demo123!",
     role: "owner",
     active: true,
+    isDemo: true,
   },
   {
     id: "usr-admin",
+    gymId: "gym-demo",
     name: "Santiago Moreno",
     email: "gerencia@powerhousegym.com",
     password: "Demo123!",
     role: "admin",
     active: true,
+    isDemo: true,
   },
   {
     id: "usr-reception",
+    gymId: "gym-demo",
     name: "Camila Lopez",
     email: "recepcion@powerhousegym.com",
     password: "Demo123!",
     role: "reception",
     active: true,
+    isDemo: true,
   },
   {
     id: "usr-trainer",
+    gymId: "gym-demo",
     name: "Diego Martinez",
     email: "entrenador@powerhousegym.com",
     password: "Demo123!",
     role: "trainer",
     active: true,
+    isDemo: true,
   },
 ];
 
@@ -427,9 +446,42 @@ const initialProgressNotes = [
   { id: "note-002", memberId: "mem-002", text: "Mejoro la resistencia cardiovascular. Mantener tecnica en sentadilla antes de subir carga.", author: "Diego Martinez", createdAt: "2026-06-07T13:20:00Z" },
 ];
 
+const registeredGymsStorageKey = "gymflow-registered-gyms";
+
+function loadRegisteredGyms() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(registeredGymsStorageKey) || "[]");
+    return Array.isArray(stored) ? stored : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRegisteredGyms(gyms) {
+  localStorage.setItem(registeredGymsStorageKey, JSON.stringify(gyms));
+}
+
+function getTrialEndDate() {
+  const trialEnd = new Date();
+  trialEnd.setDate(trialEnd.getDate() + 14);
+  return trialEnd.toISOString();
+}
+
 export default function App() {
-  const [users, setUsers] = useState(initialUsers);
+  const [registeredGyms, setRegisteredGyms] = useState(loadRegisteredGyms);
+  const [users, setUsers] = useState(() => [
+    ...initialUsers,
+    ...loadRegisteredGyms().map((gym) => gym.owner),
+  ]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [workspaceId, setWorkspaceId] = useState("gym-demo");
+  const [onboarding, setOnboarding] = useState({
+    status: "active",
+    subscriptionPlan: "demo",
+    emailVerified: true,
+    registeredAt: null,
+    trialEndsAt: null,
+  });
   const [members, setMembers] = useState(dashboardSummary.members);
   const [financialSummary, setFinancialSummary] = useState(dashboardSummary.financialSummary);
   const [selectedMemberId, setSelectedMemberId] = useState(dashboardSummary.members[0]?.memberId);
@@ -560,6 +612,58 @@ export default function App() {
     }
   }, [activeTab, currentUser, navigationItems]);
 
+  function loadWorkspace(user, registeredGymOverride = null) {
+    if (user.gymId === "gym-demo") {
+      setGymProfile(initialGymProfile);
+      setOnboarding({
+        status: "active",
+        subscriptionPlan: "demo",
+        emailVerified: true,
+        registeredAt: null,
+        trialEndsAt: null,
+      });
+      setMembers(dashboardSummary.members);
+      setFinancialSummary(dashboardSummary.financialSummary);
+      setSelectedMemberId(dashboardSummary.members[0]?.memberId);
+      setPlans(initialPlans);
+      setAttendanceLogs(initialAttendanceLogs);
+      setClasses(initialClasses);
+      setReservations(initialReservations);
+      setBudgets(initialBudgets);
+      setEquipment(initialEquipment);
+      setShifts(initialShifts);
+      setProducts(initialProducts);
+      setProgressRecords(initialProgressRecords);
+      setProgressGoals(initialProgressGoals);
+      setProgressNotes(initialProgressNotes);
+    } else {
+      const registeredGym =
+        registeredGymOverride || registeredGyms.find((gym) => gym.id === user.gymId);
+
+      if (registeredGym) {
+        setGymProfile(registeredGym.profile);
+        setOnboarding(registeredGym.onboarding);
+      }
+
+      setMembers([]);
+      setFinancialSummary(emptyFinancialSummary);
+      setSelectedMemberId(undefined);
+      setPlans([]);
+      setAttendanceLogs([]);
+      setClasses([]);
+      setReservations([]);
+      setBudgets([]);
+      setEquipment([]);
+      setShifts([]);
+      setProducts([]);
+      setProgressRecords([]);
+      setProgressGoals([]);
+      setProgressNotes([]);
+    }
+
+    setWorkspaceId(user.gymId);
+  }
+
   function handleLogin(email, password) {
     const user = users.find((item) => item.email === email);
 
@@ -571,12 +675,73 @@ export default function App() {
       return { ok: false, message: "Este usuario esta inactivo. Contacta al propietario." };
     }
 
+    if (workspaceId !== user.gymId) {
+      loadWorkspace(user);
+    }
+
     setCurrentUser(user);
     const firstTab = [
       { id: "finance", permission: "finance" },
       { id: "clients", permission: "clients" },
     ].find((item) => hasPermission(user, item.permission));
     setActiveTab(firstTab?.id || "clients");
+    return { ok: true };
+  }
+
+  function handleRegisterGym(form) {
+    const email = form.email.trim().toLowerCase();
+
+    if (users.some((user) => user.email === email)) {
+      return { ok: false, message: "Ya existe una cuenta con este correo." };
+    }
+
+    if (form.password.length < 8) {
+      return { ok: false, message: "La contrasena debe tener al menos 8 caracteres." };
+    }
+
+    if (!form.acceptTerms) {
+      return { ok: false, message: "Debes aceptar los terminos para continuar." };
+    }
+
+    const gymId = crypto.randomUUID();
+    const owner = {
+      id: crypto.randomUUID(),
+      gymId,
+      name: form.ownerName.trim(),
+      email,
+      password: form.password,
+      role: "owner",
+      active: true,
+      isDemo: false,
+    };
+    const registeredGym = {
+      id: gymId,
+      profile: {
+        gymName: form.gymName.trim(),
+        city: form.city.trim(),
+        adminName: owner.name,
+        adminEmail: owner.email,
+        adminPhone: form.phone.trim(),
+        adminRole: "Propietario",
+      },
+      onboarding: {
+        status: "pending_approval",
+        subscriptionPlan: form.subscriptionPlan,
+        emailVerified: false,
+        registeredAt: new Date().toISOString(),
+        trialEndsAt: getTrialEndDate(),
+      },
+      owner,
+    };
+    const updatedGyms = [...registeredGyms, registeredGym];
+
+    setRegisteredGyms(updatedGyms);
+    saveRegisteredGyms(updatedGyms);
+    setUsers((current) => [...current, owner]);
+    loadWorkspace(owner, registeredGym);
+    setCurrentUser(owner);
+    setActiveTab("setup");
+
     return { ok: true };
   }
 
@@ -589,7 +754,10 @@ export default function App() {
       return { ok: false, message: "Ya existe un usuario con este correo." };
     }
 
-    setUsers((current) => [{ id: crypto.randomUUID(), ...user, active: true }, ...current]);
+    setUsers((current) => [
+      { id: crypto.randomUUID(), ...user, gymId: currentUser.gymId, active: true, isDemo: false },
+      ...current,
+    ]);
     return { ok: true, message: "Usuario creado correctamente." };
   }
 
@@ -791,6 +959,22 @@ export default function App() {
     });
   }
 
+  function handleSaveGymProfile(profile) {
+    setGymProfile(profile);
+
+    if (currentUser.gymId === "gym-demo") {
+      return;
+    }
+
+    setRegisteredGyms((current) => {
+      const updated = current.map((gym) =>
+        gym.id === currentUser.gymId ? { ...gym, profile } : gym,
+      );
+      saveRegisteredGyms(updated);
+      return updated;
+    });
+  }
+
   function calculateMembershipState(endDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -969,7 +1153,7 @@ export default function App() {
   }
 
   if (!currentUser) {
-    return <AuthScreen users={users} onLogin={handleLogin} />;
+    return <AuthScreen users={users} onLogin={handleLogin} onRegisterGym={handleRegisterGym} />;
   }
 
   return (
@@ -1116,6 +1300,25 @@ export default function App() {
                 </div>
               </div>
             </header>
+
+            {onboarding.status === "pending_approval" ? (
+              <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-bold">Registro recibido, aprobacion pendiente</p>
+                  <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
+                    Tu espacio ya esta disponible durante la prueba. Confirma tu correo y espera la validacion del equipo.
+                  </p>
+                </div>
+                <div className="shrink-0 rounded-xl bg-white/70 px-3 py-2 text-xs font-semibold dark:bg-slate-950/40">
+                  Prueba hasta{" "}
+                  {new Intl.DateTimeFormat("es-CO", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }).format(new Date(onboarding.trialEndsAt))}
+                </div>
+              </div>
+            ) : null}
 
             {hasPermission(currentUser, "membership") && !isMembershipAlertDismissed ? (
           <MembershipAlert
@@ -1288,14 +1491,15 @@ export default function App() {
           <GymSetup
             gymProfile={gymProfile}
             plans={plans}
-            onSaveGymProfile={setGymProfile}
+            onboarding={onboarding}
+            onSaveGymProfile={handleSaveGymProfile}
             onCreatePlan={handleCreatePlan}
           />
         ) : null}
 
         {activeTab === "access" ? (
           <AccessManagement
-            users={users}
+            users={users.filter((user) => user.gymId === currentUser.gymId)}
             currentUser={currentUser}
             onCreateUser={handleCreateUser}
             onToggleUser={handleToggleUser}

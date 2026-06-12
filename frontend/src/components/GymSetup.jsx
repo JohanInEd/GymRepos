@@ -50,7 +50,7 @@ function formatCurrency(value) {
   }).format(value || 0);
 }
 
-export default function GymSetup({ gymProfile, plans, onSaveGymProfile, onCreatePlan }) {
+export default function GymSetup({ gymProfile, plans, onboarding, onSaveGymProfile, onCreatePlan }) {
   const [profileForm, setProfileForm] = useState(gymProfile);
   const [planForm, setPlanForm] = useState(initialPlanForm);
 
@@ -292,6 +292,35 @@ export default function GymSetup({ gymProfile, plans, onSaveGymProfile, onCreate
       </div>
 
       <aside className="space-y-6">
+        {onboarding ? (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold text-amber-950 dark:text-amber-100">Estado de la cuenta</h2>
+              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                onboarding.status === "active"
+                  ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200"
+              }`}>
+                {onboarding.status === "active" ? "Activa" : "Pendiente"}
+              </span>
+            </div>
+            <div className="mt-3 space-y-2 text-sm text-amber-900 dark:text-amber-200">
+              <p>Plan: {onboarding.subscriptionPlan === "demo" ? "Demo" : onboarding.subscriptionPlan}</p>
+              <p>Correo: {onboarding.emailVerified ? "Verificado" : "Pendiente de verificacion"}</p>
+              {onboarding.trialEndsAt ? (
+                <p>
+                  Fin de prueba:{" "}
+                  {new Intl.DateTimeFormat("es-CO", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                  }).format(new Date(onboarding.trialEndsAt))}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
         <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           <h2 className="text-base font-semibold text-gray-950 dark:text-white">{gymProfile.gymName}</h2>
           <div className="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-300">

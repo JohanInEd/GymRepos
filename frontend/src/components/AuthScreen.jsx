@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { getRoleLabel } from "../auth.js";
+import GymRegistrationForm from "./GymRegistrationForm.jsx";
 
-export default function AuthScreen({ users, onLogin }) {
+export default function AuthScreen({ users, onLogin, onRegisterGym }) {
+  const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -27,7 +29,7 @@ export default function AuthScreen({ users, onLogin }) {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.025)_1px,transparent_1px)] bg-[size:42px_42px]" />
       </div>
 
-      <div className="relative grid w-full max-w-5xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] shadow-2xl shadow-black/30 backdrop-blur-xl lg:grid-cols-[1.05fr_.95fr]">
+      <div className={`relative grid w-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] shadow-2xl shadow-black/30 backdrop-blur-xl lg:grid-cols-[1.05fr_.95fr] ${mode === "register" ? "max-w-6xl" : "max-w-5xl"}`}>
         <section className="hidden flex-col justify-between bg-gradient-to-br from-emerald-500 to-emerald-700 p-10 lg:flex">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
@@ -52,15 +54,19 @@ export default function AuthScreen({ users, onLogin }) {
           <p className="text-xs text-emerald-100/70">Demo local. La autenticacion productiva requiere el backend y contrasenas cifradas.</p>
         </section>
 
-        <section className="bg-white p-6 text-slate-950 sm:p-10 dark:bg-slate-900 dark:text-white">
+        <section className="max-h-[calc(100vh-5rem)] overflow-y-auto bg-white p-6 text-slate-950 sm:p-10 dark:bg-slate-900 dark:text-white">
           <div className="lg:hidden">
             <p className="text-xl font-bold text-emerald-600">GymFlow</p>
           </div>
-          <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-emerald-600 lg:mt-0">Acceso seguro</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight">Bienvenido de nuevo</h2>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Ingresa con una cuenta habilitada para continuar.</p>
+          {mode === "register" ? (
+            <GymRegistrationForm onRegister={onRegisterGym} onShowLogin={() => setMode("login")} />
+          ) : (
+            <>
+              <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-emerald-600 lg:mt-0">Acceso seguro</p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight">Bienvenido de nuevo</h2>
+              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Ingresa con una cuenta habilitada para continuar.</p>
 
-          <form onSubmit={submit} className="mt-8 space-y-4">
+              <form onSubmit={submit} className="mt-8 space-y-4">
             <label className="block">
               <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Correo</span>
               <input
@@ -93,12 +99,26 @@ export default function AuthScreen({ users, onLogin }) {
             <button type="submit" className="h-12 w-full rounded-xl bg-emerald-500 text-sm font-bold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600">
               Iniciar sesion
             </button>
-          </form>
+              </form>
 
-          <div className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-800">
+              <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
+                Tu gimnasio aun no usa GymFlow?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode("register");
+                    setError("");
+                  }}
+                  className="font-bold text-emerald-600 hover:text-emerald-700"
+                >
+                  Registrar gimnasio
+                </button>
+              </p>
+
+              <div className="mt-8 border-t border-slate-200 pt-6 dark:border-slate-800">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Cuentas demo</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {users.filter((user) => user.active).map((user) => (
+              {users.filter((user) => user.active && user.isDemo).map((user) => (
                 <button
                   key={user.id}
                   type="button"
@@ -111,7 +131,9 @@ export default function AuthScreen({ users, onLogin }) {
               ))}
             </div>
             <p className="mt-3 text-xs text-slate-400">Selecciona una cuenta y luego inicia sesion. Contrasena demo: Demo123!</p>
-          </div>
+              </div>
+            </>
+          )}
         </section>
       </div>
     </main>
